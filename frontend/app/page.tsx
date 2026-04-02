@@ -1,65 +1,101 @@
-import Image from "next/image";
+import Link from "next/link";
+import { ShieldCheck, BadgeCheck, Wrench, CarFront } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div>
+      {/* Hero */}
+      <section style={{
+        padding: "100px 64px",
+        maxWidth: "1200px",
+        margin: "0 auto",
+        position: "relative",
+      }}>
+        {/* Background accent */}
+        <div style={{
+          position: "absolute",
+          top: "40px",
+          right: "64px",
+          width: "480px",
+          height: "480px",
+          background: "radial-gradient(circle, rgba(232,255,0,0.06) 0%, transparent 70%)",
+          pointerEvents: "none",
+        }} />
+
+        <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--accent)", letterSpacing: "3px", textTransform: "uppercase", marginBottom: "24px" }}>
+          Verified Fitment · Escrow Protection
+        </p>
+        <h1 className="display-font" style={{ fontSize: "clamp(60px, 10vw, 120px)", lineHeight: 0.9, letterSpacing: "2px", marginBottom: "32px" }}>
+          THE RIGHT<br />
+          <span style={{ color: "var(--accent)", WebkitTextStroke: "0px" }}>PART.</span><br />
+          EVERY TIME.
+        </h1>
+        <p style={{ maxWidth: "520px", color: "var(--muted)", fontSize: "17px", lineHeight: 1.7, marginBottom: "40px" }}>
+          ModMatch guarantees every part fits your exact vehicle — and holds your payment safe until you confirm it does. No more expensive mistakes.
+        </p>
+        <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+          <Link href="/search">
+            <button className="btn-accent" style={{ fontSize: "16px", padding: "14px 32px" }}>Find Parts for My Car</button>
+          </Link>
+          <Link href="/seller/dashboard">
+            <button className="btn-ghost" style={{ fontSize: "16px", padding: "14px 32px" }}>Start Selling</button>
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* How it works */}
+      <section style={{
+        borderTop: "1px solid var(--border)",
+        padding: "80px 64px",
+        maxWidth: "1200px",
+        margin: "0 auto",
+      }}>
+        <h2 className="display-font" style={{ fontSize: "48px", letterSpacing: "2px", marginBottom: "48px", color: "var(--muted)" }}>
+          HOW IT WORKS
+        </h2>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "24px" }}>
+          {[
+            { step: "01", title: "Add Your Car", desc: "Enter your make, model, and year. We match parts that fit — guaranteed." },
+            { step: "02", title: "Browse & Buy", desc: "Admin-verified listings only. Funds held in escrow until you confirm fitment." },
+            { step: "03", title: "Receive & Confirm", desc: "Part arrives. Fits perfectly. Confirm — seller gets paid. Simple." },
+            { step: "04", title: "Problem? We Fix It", desc: "Doesn't fit? Funds held. Admin resolves disputes fairly and fast." },
+          ].map(item => (
+            <div key={item.step} className="card" style={{ padding: "28px" }}>
+              <span className="display-font" style={{ fontSize: "48px", color: "var(--accent)", opacity: 0.4, lineHeight: 1 }}>
+                {item.step}
+              </span>
+              <h3 style={{ fontSize: "16px", fontWeight: 600, margin: "12px 0 8px" }}>{item.title}</h3>
+              <p style={{ color: "var(--muted)", fontSize: "14px", lineHeight: 1.6 }}>{item.desc}</p>
+            </div>
+          ))}
         </div>
-      </main>
+      </section>
+
+      {/* Trust badges */}
+      <section style={{
+        borderTop: "1px solid var(--border)",
+        padding: "60px 64px",
+        maxWidth: "1200px",
+        margin: "0 auto",
+        display: "flex",
+        gap: "48px",
+        flexWrap: "wrap",
+      }}>
+        {[
+          { icon: <ShieldCheck size={36} color="var(--accent)" strokeWidth={1.5} />, label: "Escrow Protection", sub: "Money held until confirmed" },
+          { icon: <BadgeCheck size={36} color="var(--green)" strokeWidth={1.5} />, label: "Admin-Verified Parts", sub: "Every listing checked" },
+          { icon: <Wrench size={36} color="#a1a1aa" strokeWidth={1.5} />, label: "Fitment Guarantee", sub: "Matches your exact vehicle" },
+          { icon: <CarFront size={36} color="#60a5fa" strokeWidth={1.5} />, label: "Master Car Database", sub: "Thousands of makes & models" },
+        ].map(b => (
+          <div key={b.label} style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <div>{b.icon}</div>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: "14px" }}>{b.label}</div>
+              <div style={{ color: "var(--muted)", fontSize: "13px" }}>{b.sub}</div>
+            </div>
+          </div>
+        ))}
+      </section>
     </div>
   );
 }

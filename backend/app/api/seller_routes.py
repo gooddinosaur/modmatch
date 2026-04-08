@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from ..db.session import get_db
-from ..db.models import Part, PartStatusEnum, Order, OrderStatusEnum
+from ..db.models import Part, PartStatusEnum, Order, OrderStatusEnum, User
+from ..domain.auth_permission import require_seller  # NEW
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -12,10 +13,9 @@ class PartCreate(BaseModel):
     price: float
 
 @router.post("/listings")
-def create_listing(part_data: PartCreate, db: Session = Depends(get_db)):
-    # Seller lists a part. It requires admin approval.
+def create_listing(part_data: PartCreate, current_user: User = Depends(require_seller), db: Session = Depends(get_db)):
     new_part = Part(
-        seller_id=2, # Mock ID, use auth token in prod
+        seller_id=current_user.id,
         name=part_data.name,
         description=part_data.description,
         price=part_data.price,
@@ -27,34 +27,26 @@ def create_listing(part_data: PartCreate, db: Session = Depends(get_db)):
     return {"message": "Listing created and pending admin approval", "part": new_part}
 
 @router.get("/listings")
-def get_my_listings(db: Session = Depends(get_db)):
-    # get listings for the logged-in seller
-    parts = db.query(Part).filter(Part.seller_id == 2).all()
-    return parts
+def get_my_listings(current_user: User = Depends(require_seller), db: Session = Depends(get_db)):
+    return db.query(Part).filter(Part.seller_id == current_user.id).all()
 
 @router.get("/orders")
-def get_my_orders(db: Session = Depends(get_db)):
-    # Orders containing parts from this seller
-    orders = db.query(Order).join(Part).filter(Part.seller_id == 2).all()
-    return orders
+def get_my_orders(current_user: User = Depends(require_seller), db: Session = Depends(get_db)):
+    return db.query(Order).join(Part).filter(Part.seller_id == current_user.id).all()
 
 @router.put("/orders/{order_id}/mark_shipped")
-def mark_order_shipped(order_id: int, tracking_number: str, db: Session = Depends(get_db)):
-    order = db.query(Order).join(Part).filter(Order.id == order_id).filter(Part.seller_id == 2).first()
+def mark_order_shipped(order_id: int, tracking_number: str, current_user: User = Depends(require_seller), db: Session = Depends(get_db)):
+    order = db.query(Order).join(Part).filter(Order.id == order_id, Part.seller_id == current_user.id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found or not owned by seller")
-    
     order.status = OrderStatusEnum.SHIPPED
     db.commit()
     db.refresh(order)
     return {"message": "Order marked as shipped", "tracking": tracking_number, "order": order}
 
 @router.post("/orders/{order_id}/withdraw")
-def withdraw_funds(order_id: int, db: Session = Depends(get_db)):
-    # Simulates seller withdrawal of released funds
-    order = db.query(Order).filter(Order.id == order_id, Part.seller_id == 2).join(Part).first()
+def withdraw_funds(order_id: int, current_user: User = Depends(require_seller), db: Session = Depends(get_db)):
+    order = db.query(Order).join(Part).filter(Order.id == order_id, Part.seller_id == current_user.id).first()
     if not order or order.status not in [OrderStatusEnum.CONFIRMED, OrderStatusEnum.FUNDS_RELEASED]:
         raise HTTPException(status_code=400, detail="Funds not available for withdrawal yet")
-    
-    # Process payout...
-    return {"message": "Funds successfully withdrawn to your bank account", "amount": order.amount_paid}
+    return {"message": "Funds successfully withdrawn", "amount": order.amount_paid}

@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Navbar() {
-  const [role, setRole] = useState<"buyer" | "seller" | "admin">("buyer");
+  const { user, logout } = useAuth();
 
   return (
     <nav style={{
@@ -32,31 +32,45 @@ export default function Navbar() {
           Listings
         </Link>
 
-        {/* Role switcher — dev helper */}
-        <select
-          value={role}
-          onChange={(e) => {
-            setRole(e.target.value as typeof role);
-          }}
-          style={{ width: "auto", padding: "6px 10px", fontSize: "13px" }}
-        >
-          <option value="buyer">Buyer View</option>
-          <option value="seller">Seller View</option>
-          <option value="admin">Admin View</option>
-        </select>
+        {user ? (
+          <>
+            {/* Role badge */}
+            <span style={{
+              fontSize: "11px", fontWeight: 700, letterSpacing: "1px",
+              padding: "3px 10px", borderRadius: "20px", textTransform: "uppercase",
+              background: user.role === "admin" ? "rgba(255,77,0,0.15)" : user.role === "seller" ? "rgba(232,255,0,0.12)" : "rgba(0,230,118,0.12)",
+              color: user.role === "admin" ? "var(--accent2)" : user.role === "seller" ? "var(--accent)" : "var(--green)",
+            }}>
+              {user.role}
+            </span>
 
-        {role === "seller" && (
-          <Link href="/seller/dashboard">
-            <button className="btn-ghost" style={{ padding: "8px 16px" }}>Seller Dashboard</button>
-          </Link>
-        )}
-        {role === "admin" && (
-          <Link href="/admin/dashboard">
-            <button className="btn-ghost" style={{ padding: "8px 16px" }}>Admin Dashboard</button>
-          </Link>
-        )}
+            <span style={{ color: "var(--muted)", fontSize: "13px" }}>{user.email}</span>
 
-        <button className="btn-accent" style={{ padding: "8px 18px" }}>Sign In</button>
+            {user.role === "seller" && (
+              <Link href="/seller/dashboard">
+                <button className="btn-ghost" style={{ padding: "8px 16px" }}>Dashboard</button>
+              </Link>
+            )}
+            {user.role === "admin" && (
+              <Link href="/admin/dashboard">
+                <button className="btn-ghost" style={{ padding: "8px 16px" }}>Admin Panel</button>
+              </Link>
+            )}
+
+            <button className="btn-ghost" style={{ padding: "8px 16px" }} onClick={logout}>
+              Sign Out
+            </button>
+          </>
+        ) : (
+          <>
+            <Link href="/login">
+              <button className="btn-ghost" style={{ padding: "8px 16px" }}>Sign In</button>
+            </Link>
+            <Link href="/register">
+              <button className="btn-accent" style={{ padding: "8px 18px" }}>Register</button>
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );

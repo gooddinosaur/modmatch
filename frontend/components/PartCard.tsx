@@ -1,5 +1,8 @@
+"use client";
+
 import { useAuth } from "@/context/AuthContext";
 import StatusBadge from "./StatusBadge";
+import { useRouter } from "next/navigation";
 
 export interface Part {
   id: string | number;
@@ -16,12 +19,12 @@ export interface Part {
 
 export default function PartCard({ part, hideStatus }: { readonly part: Part; readonly hideStatus?: boolean }) {
   const { user } = useAuth();
+  const router = useRouter();
 
   return (
     <div className="card" style={{
       padding: "20px",
       transition: "border-color 0.2s, transform 0.2s",
-      cursor: "pointer",
     }}
       onMouseEnter={e => {
         (e.currentTarget as HTMLDivElement).style.borderColor = "var(--accent)";
@@ -74,7 +77,7 @@ export default function PartCard({ part, hideStatus }: { readonly part: Part; re
           ฿{part.price.toLocaleString()}
         </span>
         {(!user || user.role === "buyer") && (
-          <button className="btn-accent" style={{ padding: "8px 18px", fontSize: "13px" }}>
+          <button className="btn-accent" style={{ padding: "8px 18px", fontSize: "13px" }} onClick={() => router.push(`/checkout/${part.id}`)}>
             Buy Now
           </button>
         )}

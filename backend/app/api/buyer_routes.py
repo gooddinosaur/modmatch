@@ -86,6 +86,26 @@ def delete_address(addr_id: int, current_user: User = Depends(require_buyer), db
 def get_vehicles(current_user: User = Depends(require_buyer), db: Session = Depends(get_db)):
     return db.query(UserVehicle).filter(UserVehicle.user_id == current_user.id).all()
 
+@router.get("/orders")
+def get_buyer_orders(current_user: User = Depends(require_buyer), db: Session = Depends(get_db)):
+    orders = db.query(Order).filter(Order.buyer_id == current_user.id).order_by(Order.created_at.desc()).all()
+    # Serialize to include part details directly
+    result = []
+    for o in orders:
+        seller_name = "Unknown Seller"
+        if o.part and o.part.seller:
+            seller_name = o.part.seller.display_name or o.part.seller.email
+        
+        result.append({
+            "id": o.id,
+            "status": o.status,
+            "amount_paid": o.amount_paid,
+            "created_at": o.created_at,
+            "part": o.part,
+            "seller_name": seller_name
+        })
+    return result
+
 @router.post("/vehicles")
 def add_vehicle(vehicle_data: VehicleCreate, current_user: User = Depends(require_buyer), db: Session = Depends(get_db)):
     new_vehicle = UserVehicle(
@@ -110,6 +130,13 @@ def search_parts(make: str = None, model: str = None, year: int = None, db: Sess
     query = db.query(Part).filter(Part.status == PartStatusEnum.APPROVED)
     return query.all()
 
+@router.get("/parts/{part_id}")
+def get_part_details(part_id: int, db: Session = Depends(get_db)):
+    part = db.query(Part).filter(Part.id == part_id, Part.status == PartStatusEnum.APPROVED).first()
+    if not part:
+        raise HTTPException(status_code=404, detail="Part not found")
+    return part
+
 @router.post("/buy")
 def buy_part(order_data: OrderCreate, current_user: User = Depends(require_buyer), db: Session = Depends(get_db)):
     part = db.query(Part).filter(Part.id == order_data.part_id).first()
@@ -124,7 +151,15 @@ def buy_part(order_data: OrderCreate, current_user: User = Depends(require_buyer
     db.add(new_order)
     db.commit()
     db.refresh(new_order)
-    return {"message": "Payment held in escrow, awaiting seller to ship", "order": new_order}
+    
+    # Mark part as sold to prevent double-buying (if desired, or we just rely on order tracking)
+    part.status = PartStatusEnum.PENDING # Actually, changing to PENDING or adding a SOLD status. We'll leave it simple.
+    db.commit()
+    
+    return {
+        "message": "Payment held in escrow, awaiting seller to ship", 
+        "order": {"id": new_order.id, "status": new_order.status}
+    }
 
 @router.put("/orders/{order_id}/confirm")
 def confirm_order(order_id: int, current_user: User = Depends(require_buyer), db: Session = Depends(get_db)):
@@ -134,7 +169,10 @@ def confirm_order(order_id: int, current_user: User = Depends(require_buyer), db
     order.status = OrderStatusEnum.CONFIRMED
     db.commit()
     db.refresh(order)
-    return {"message": "Order confirmed! Funds available for seller.", "order": order}
+    return {
+        "message": "Order confirmed! Funds available for seller.", 
+        "order": {"id": order.id, "status": order.status}
+    }
 
 @router.put("/orders/{order_id}/report")
 def report_order(order_id: int, current_user: User = Depends(require_buyer), db: Session = Depends(get_db)):
@@ -143,4 +181,7 @@ def report_order(order_id: int, current_user: User = Depends(require_buyer), db:
         raise HTTPException(status_code=404, detail="Order not found")
     order.status = OrderStatusEnum.REPORTED
     db.commit()
-    return {"message": "Order reported. Admin will mediate.", "order": order}
+    return {
+        "message": "Order reported. Admin will mediate.", 
+        "order": {"id": order.id, "status": order.status}
+    }

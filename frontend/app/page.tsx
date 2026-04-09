@@ -11,13 +11,9 @@ export default function Home() {
         margin: "0 auto",
         position: "relative",
       }}>
-        {/* Background accent */}
         <div style={{
-          position: "absolute",
-          top: "40px",
-          right: "64px",
-          width: "480px",
-          height: "480px",
+          position: "absolute", top: "40px", right: "64px",
+          width: "480px", height: "480px",
           background: "radial-gradient(circle, rgba(232,255,0,0.06) 0%, transparent 70%)",
           pointerEvents: "none",
         }} />
@@ -27,17 +23,17 @@ export default function Home() {
         </p>
         <h1 className="display-font" style={{ fontSize: "clamp(60px, 10vw, 120px)", lineHeight: 0.9, letterSpacing: "2px", marginBottom: "32px" }}>
           THE RIGHT<br />
-          <span style={{ color: "var(--accent)", WebkitTextStroke: "0px" }}>PART.</span><br />
+          <span style={{ color: "var(--accent)" }}>PART.</span><br />
           EVERY TIME.
         </h1>
         <p style={{ maxWidth: "520px", color: "var(--muted)", fontSize: "17px", lineHeight: 1.7, marginBottom: "40px" }}>
           ModMatch guarantees every part fits your exact vehicle — and holds your payment safe until you confirm it does. No more expensive mistakes.
         </p>
         <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-          <Link href="/search">
+          <Link href="/register/buyer">
             <button className="btn-accent" style={{ fontSize: "16px", padding: "14px 32px" }}>Find Parts for My Car</button>
           </Link>
-          <Link href="/seller/dashboard">
+          <Link href="/register/seller">
             <button className="btn-ghost" style={{ fontSize: "16px", padding: "14px 32px" }}>Start Selling</button>
           </Link>
         </div>

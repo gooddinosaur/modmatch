@@ -1,9 +1,12 @@
 "use client";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import { User } from "lucide-react";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+
+  const profileHref = user?.role === "seller" ? "/profile/seller" : "/profile/buyer";
 
   return (
     <nav style={{
@@ -44,8 +47,6 @@ export default function Navbar() {
               {user.role}
             </span>
 
-            <span style={{ color: "var(--muted)", fontSize: "13px" }}>{user.email}</span>
-
             {user.role === "seller" && (
               <Link href="/seller/dashboard">
                 <button className="btn-ghost" style={{ padding: "8px 16px" }}>Dashboard</button>
@@ -54,6 +55,16 @@ export default function Navbar() {
             {user.role === "admin" && (
               <Link href="/admin/dashboard">
                 <button className="btn-ghost" style={{ padding: "8px 16px" }}>Admin Panel</button>
+              </Link>
+            )}
+
+            {/* Profile link */}
+            {user.role !== "admin" && (
+              <Link href={profileHref}>
+                <button className="btn-ghost" style={{ padding: "8px 12px", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <User size={14} />
+                  <span style={{ fontSize: "13px" }}>{user.email.split("@")[0]}</span>
+                </button>
               </Link>
             )}
 

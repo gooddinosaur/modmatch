@@ -47,11 +47,6 @@ export default function Navbar() {
             Search Parts
           </Link>
         )}
-        {user?.role === "admin" && (
-          <Link href="/listings" style={{ color: "var(--muted)", textDecoration: "none", padding: "6px 14px", fontSize: "14px" }}>
-            Listings
-          </Link>
-        )}
 
         {user ? (
           <>
@@ -72,7 +67,7 @@ export default function Navbar() {
             )}
             {user.role === "admin" && (
               <Link href="/admin/dashboard">
-                <button className="btn-ghost" style={{ padding: "8px 16px" }}>Admin Panel</button>
+                <button className="btn-ghost" style={{ padding: "8px 16px" }}>Admin Dashboard</button>
               </Link>
             )}
 

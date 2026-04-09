@@ -7,6 +7,7 @@ export default function Navbar() {
   const { user, logout } = useAuth();
 
   const profileHref = user?.role === "seller" ? "/profile/seller" : "/profile/buyer";
+  const homeHref = user?.role === "seller" ? "/seller/dashboard" : user?.role === "admin" ? "/admin/dashboard" : "/search";
 
   return (
     <nav style={{
@@ -21,7 +22,7 @@ export default function Navbar() {
       top: 0,
       zIndex: 100,
     }}>
-      <Link href="/" style={{ textDecoration: "none" }}>
+      <Link href={user ? homeHref : "/"} style={{ textDecoration: "none" }}>
         <span className="display-font" style={{ fontSize: "28px", letterSpacing: "2px", color: "var(--accent)" }}>
           MOD<span style={{ color: "var(--text)" }}>MATCH</span>
         </span>
@@ -31,9 +32,11 @@ export default function Navbar() {
         <Link href="/search" style={{ color: "var(--muted)", textDecoration: "none", padding: "6px 14px", fontSize: "14px" }}>
           Search Parts
         </Link>
-        <Link href="/listings" style={{ color: "var(--muted)", textDecoration: "none", padding: "6px 14px", fontSize: "14px" }}>
-          Listings
-        </Link>
+        {(user?.role === "seller" || user?.role === "admin") && (
+          <Link href="/listings" style={{ color: "var(--muted)", textDecoration: "none", padding: "6px 14px", fontSize: "14px" }}>
+            Listings
+          </Link>
+        )}
 
         {user ? (
           <>

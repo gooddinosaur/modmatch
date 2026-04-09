@@ -1,7 +1,30 @@
+"use client";
 import Link from "next/link";
 import { ShieldCheck, BadgeCheck, Wrench, CarFront } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) {
+      if (user.role === "seller") {
+        router.push("/seller/dashboard");
+      } else if (user.role === "admin") {
+        router.push("/admin/dashboard");
+      } else {
+        router.push("/search");
+      }
+    }
+  }, [user, loading, router]);
+
+  if (loading || user) {
+    return null; // Or a loading spinner, prevent flash of landing page
+  }
+
   return (
     <div>
       {/* Hero */}

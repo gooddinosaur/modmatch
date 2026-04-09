@@ -1,60 +1,186 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { User, MapPin, Car, Edit3, Save, X, Plus, Trash2 } from "lucide-react";
 
 interface Address {
-  id: string; label: string; isDefault: boolean;
+  id: string | number; label: string; isDefault: boolean;
   firstName: string; lastName: string; phone: string;
-  addressLine1: string; addressLine2: string;
+  addressLine1: string; addressLine2?: string;
   city: string; province: string; postalCode: string;
 }
 
 interface Vehicle {
-  id: string; make: string; model: string; year: string; subModel: string;
+  id: string | number; make: string; model: string; year: string; subModel?: string;
 }
 
 const MAKES = ["Honda", "Toyota", "Mazda", "Subaru", "Nissan", "Mitsubishi", "BMW", "Mercedes-Benz", "Audi", "Ford", "Chevrolet", "Other"];
-
-const MOCK_ADDRESSES: Address[] = [{
-  id: "addr_1", label: "Home", isDefault: true,
-  firstName: "Somchai", lastName: "Rakpong", phone: "081-234-5678",
-  addressLine1: "123/45 Sukhumvit Soi 11", addressLine2: "Khlong Toei Nuea, Watthana",
-  city: "Bangkok", province: "Bangkok", postalCode: "10110",
-}];
-
-const MOCK_VEHICLES: Vehicle[] = [
-  { id: "v1", make: "Honda", model: "Civic Type R", year: "2020", subModel: "FK8" },
-];
 
 export default function BuyerProfilePage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<"profile" | "addresses" | "vehicles">("profile");
   const [editingProfile, setEditingProfile] = useState(false);
-  const [displayName, setDisplayName] = useState("Somchai Rakpong");
-  const [phone, setPhone] = useState("081-234-5678");
+  const [displayName, setDisplayName] = useState("");
+  const [phone, setPhone] = useState("");
 
-  const [addresses, setAddresses] = useState<Address[]>(MOCK_ADDRESSES);
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const [showAddAddr, setShowAddAddr] = useState(false);
   const [newAddr, setNewAddr] = useState<Omit<Address, "id" | "isDefault">>({
     label: "", firstName: "", lastName: "", phone: "",
     addressLine1: "", addressLine2: "", city: "", province: "", postalCode: "",
   });
 
-  const [vehicles, setVehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
+  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [showAddVehicle, setShowAddVehicle] = useState(false);
   const [newVehicle, setNewVehicle] = useState<Omit<Vehicle, "id">>({ make: "", model: "", year: "", subModel: "" });
 
-  const addAddress = () => {
-    setAddresses([...addresses, { ...newAddr, id: `addr_${Date.now()}`, isDefault: addresses.length === 0 }]);
-    setNewAddr({ label: "", firstName: "", lastName: "", phone: "", addressLine1: "", addressLine2: "", city: "", province: "", postalCode: "" });
-    setShowAddAddr(false);
+  useEffect(() => {
+    fetchProfileData();
+  }, []);
+
+  const fetchProfileData = async () => {
+    try {
+      const token = user?.token;
+      if (!token) return;
+
+      const profileRes = await fetch("http://localhost:8000/api/v1/buyer/profile", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (profileRes.ok) {
+        const p = await profileRes.json();
+        setDisplayName(p.display_name || "");
+        setPhone(p.phone || "");
+      }
+
+      const addrRes = await fetch("http://localhost:8000/api/v1/buyer/addresses", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (addrRes.ok) {
+        const a = await addrRes.json();
+        setAddresses(a.map((item: any) => ({
+          id: item.id, label: item.label, isDefault: item.is_default,
+          firstName: item.first_name, lastName: item.last_name, phone: item.phone,
+          addressLine1: item.address_line1, addressLine2: item.address_line2,
+          city: item.city, province: item.province, postalCode: item.postal_code
+        })));
+      }
+
+      const vehRes = await fetch("http://localhost:8000/api/v1/buyer/vehicles", {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (vehRes.ok) {
+        const v = await vehRes.json();
+        setVehicles(v.map((item: any) => ({
+          id: item.id, make: item.make, model: item.model, year: item.year, subModel: item.sub_model
+        })));
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const addVehicle = () => {
-    setVehicles([...vehicles, { ...newVehicle, id: `v_${Date.now()}` }]);
-    setNewVehicle({ make: "", model: "", year: "", subModel: "" });
-    setShowAddVehicle(false);
+  const saveProfile = async () => {
+    try {
+      const token = user?.token;
+      if (!token) return;
+      const res = await fetch("http://localhost:8000/api/v1/buyer/profile", {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ display_name: displayName, phone: phone })
+      });
+      if (res.ok) {
+        setEditingProfile(false);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const addAddress = async () => {
+    try {
+      const token = user?.token;
+      if (!token) return;
+      const res = await fetch("http://localhost:8000/api/v1/buyer/addresses", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          label: newAddr.label, first_name: newAddr.firstName, last_name: newAddr.lastName,
+          phone: newAddr.phone, address_line1: newAddr.addressLine1, address_line2: newAddr.addressLine2,
+          city: newAddr.city, province: newAddr.province, postal_code: newAddr.postalCode
+        })
+      });
+      if (res.ok) {
+        fetchProfileData();
+        setNewAddr({ label: "", firstName: "", lastName: "", phone: "", addressLine1: "", addressLine2: "", city: "", province: "", postalCode: "" });
+        setShowAddAddr(false);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const deleteAddress = async (id: string | number) => {
+    try {
+      const token = user?.token;
+      if (!token) return;
+      await fetch(`http://localhost:8000/api/v1/buyer/addresses/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      fetchProfileData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const setDefaultAddress = async (id: string | number) => {
+    try {
+      const token = user?.token;
+      if (!token) return;
+      await fetch(`http://localhost:8000/api/v1/buyer/addresses/${id}/default`, {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      fetchProfileData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const addVehicle = async () => {
+    try {
+      const token = user?.token;
+      if (!token) return;
+      const res = await fetch("http://localhost:8000/api/v1/buyer/vehicles", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          make: newVehicle.make, model: newVehicle.model,
+          year: newVehicle.year, sub_model: newVehicle.subModel
+        })
+      });
+      if (res.ok) {
+        fetchProfileData();
+        setNewVehicle({ make: "", model: "", year: "", subModel: "" });
+        setShowAddVehicle(false);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const deleteVehicle = async (id: string | number) => {
+    try {
+      const token = user?.token;
+      if (!token) return;
+      await fetch(`http://localhost:8000/api/v1/buyer/vehicles/${id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      fetchProfileData();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -120,7 +246,7 @@ export default function BuyerProfilePage() {
             </div>
             {editingProfile && (
               <button className="btn-accent" style={{ padding: "12px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
-                onClick={() => setEditingProfile(false)}>
+                onClick={() => saveProfile()}>
                 <Save size={15} /> Save Changes
               </button>
             )}
@@ -153,12 +279,12 @@ export default function BuyerProfilePage() {
                   <div style={{ display: "flex", gap: "8px" }}>
                     {!addr.isDefault && (
                       <button className="btn-ghost" style={{ padding: "6px 12px", fontSize: "12px" }}
-                        onClick={() => setAddresses(addresses.map(a => ({ ...a, isDefault: a.id === addr.id })))}>
+                        onClick={() => setDefaultAddress(addr.id)}>
                         Set Default
                       </button>
                     )}
                     <button className="btn-ghost" style={{ padding: "6px 10px", color: "var(--red)", borderColor: "rgba(255,61,61,0.3)" }}
-                      onClick={() => setAddresses(addresses.filter(a => a.id !== addr.id))}>
+                      onClick={() => deleteAddress(addr.id)}>
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -240,7 +366,7 @@ export default function BuyerProfilePage() {
                     </span>
                   </div>
                   <button className="btn-ghost" style={{ padding: "6px 10px", color: "var(--red)", borderColor: "rgba(255,61,61,0.3)" }}
-                    onClick={() => setVehicles(vehicles.filter(x => x.id !== v.id))}>
+                    onClick={() => deleteVehicle(v.id)}>
                     <Trash2 size={14} />
                   </button>
                 </div>

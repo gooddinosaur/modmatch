@@ -29,9 +29,43 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     role = Column(Enum(RoleEnum), default=RoleEnum.BUYER)
+    display_name = Column(String, nullable=True)
+    phone = Column(String, nullable=True)
     
     parts = relationship("Part", back_populates="seller")
     orders = relationship("Order", back_populates="buyer")
+    addresses = relationship("UserAddress", back_populates="user")
+    user_vehicles = relationship("UserVehicle", back_populates="user")
+    
+class UserAddress(Base):
+    __tablename__ = "user_addresses"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    label = Column(String)
+    is_default = Column(Boolean, default=False)
+    first_name = Column(String)
+    last_name = Column(String)
+    phone = Column(String)
+    address_line1 = Column(String)
+    address_line2 = Column(String)
+    city = Column(String)
+    province = Column(String)
+    postal_code = Column(String)
+
+    user = relationship("User", back_populates="addresses")
+
+class UserVehicle(Base):
+    __tablename__ = "user_vehicles"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    make = Column(String, nullable=False)
+    model = Column(String, nullable=False)
+    year = Column(String, nullable=False)
+    sub_model = Column(String)
+
+    user = relationship("User", back_populates="user_vehicles")
 
 
 class Vehicle(Base):

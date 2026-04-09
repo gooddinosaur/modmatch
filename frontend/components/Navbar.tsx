@@ -1,10 +1,23 @@
 "use client";
+import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { User } from "lucide-react";
+import { User, ChevronDown, LogOut } from "lucide-react";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const profileHref = user?.role === "seller" ? "/profile/seller" : "/profile/buyer";
   const homeHref = user?.role === "seller" ? "/seller/dashboard" : user?.role === "admin" ? "/admin/dashboard" : "/search";
@@ -61,19 +74,58 @@ export default function Navbar() {
               </Link>
             )}
 
-            {/* Profile link */}
-            {user.role !== "admin" && (
-              <Link href={profileHref}>
-                <button className="btn-ghost" style={{ padding: "8px 12px", display: "flex", alignItems: "center", gap: "6px" }}>
-                  <User size={14} />
-                  <span style={{ fontSize: "13px" }}>{user.email.split("@")[0]}</span>
-                </button>
-              </Link>
-            )}
+            {/* Profile Dropdown */}
+            <div style={{ position: "relative" }} ref={dropdownRef}>
+              <button
+                className="btn-ghost"
+                style={{ padding: "8px 12px", display: "flex", alignItems: "center", gap: "6px" }}
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+              >
+                {user.role !== "admin" && <User size={14} />}
+                <span style={{ fontSize: "13px" }}>{user.email.split("@")[0]}</span>
+                <ChevronDown size={14} />
+              </button>
 
-            <button className="btn-ghost" style={{ padding: "8px 16px" }} onClick={logout}>
-              Sign Out
-            </button>
+              {dropdownOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "100%",
+                    right: 0,
+                    marginTop: "8px",
+                    background: "var(--surface)",
+                    border: "1px solid var(--border)",
+                    borderRadius: "8px",
+                    padding: "8px",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "4px",
+                    minWidth: "160px",
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                    zIndex: 100,
+                  }}
+                >
+                  {user.role !== "admin" && (
+                    <Link href={profileHref} onClick={() => setDropdownOpen(false)} style={{ textDecoration: "none" }}>
+                      <div className="btn-ghost" style={{ width: "100%", textAlign: "left", padding: "8px 12px", fontSize: "13px" }}>
+                        My Profile
+                      </div>
+                    </Link>
+                  )}
+                  <button
+                    className="btn-ghost"
+                    style={{ width: "100%", textAlign: "left", margin: 0, padding: "8px 12px", color: "var(--red)", fontSize: "13px", display: "flex", alignItems: "center", gap: "6px" }}
+                    onClick={() => {
+                      setDropdownOpen(false);
+                      logout();
+                    }}
+                  >
+                    <LogOut size={13} />
+                    Sign Out
+                  </button>
+                </div>
+              )}
+            </div>
           </>
         ) : (
           <>

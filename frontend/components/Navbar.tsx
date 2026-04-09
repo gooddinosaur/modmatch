@@ -42,9 +42,11 @@ export default function Navbar() {
       </Link>
 
       <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-        <Link href="/search" style={{ color: "var(--muted)", textDecoration: "none", padding: "6px 14px", fontSize: "14px" }}>
-          Search Parts
-        </Link>
+        {user && (
+          <Link href="/search" style={{ color: "var(--muted)", textDecoration: "none", padding: "6px 14px", fontSize: "14px" }}>
+            Search Parts
+          </Link>
+        )}
         {(user?.role === "seller" || user?.role === "admin") && (
           <Link href="/listings" style={{ color: "var(--muted)", textDecoration: "none", padding: "6px 14px", fontSize: "14px" }}>
             Listings

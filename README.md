@@ -17,8 +17,8 @@ The platform includes an admin verification process and a safe payment workflow 
 
 ## Tech Stack (Planned)
 
-* Frontend: Next.js
+* Frontend: Next.js (npm run dev)
 
-* Backend: FastAPI (Python)
+* Backend: FastAPI (Python) (uvicorn app.main:app --reload)
 
 * Database: PostgreSQL

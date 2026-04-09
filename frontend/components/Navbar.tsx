@@ -47,7 +47,7 @@ export default function Navbar() {
             Search Parts
           </Link>
         )}
-        {(user?.role === "seller" || user?.role === "admin") && (
+        {user?.role === "admin" && (
           <Link href="/listings" style={{ color: "var(--muted)", textDecoration: "none", padding: "6px 14px", fontSize: "14px" }}>
             Listings
           </Link>

@@ -22,3 +22,5 @@ The platform includes an admin verification process and a safe payment workflow 
 * Backend: FastAPI (Python) (uvicorn app.main:app --reload)
 
 * Database: PostgreSQL
+
+docker-compose up -d

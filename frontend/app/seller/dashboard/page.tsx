@@ -8,6 +8,7 @@ interface Listing {
   name: string;
   description: string;
   price: number;
+  quantity: number;
   status: "pending" | "approved" | "rejected";
   ordersCount?: number;
 }
@@ -84,6 +85,7 @@ export default function SellerDashboard() {
           name: l.name,
           description: l.description,
           price: l.price,
+          quantity: l.quantity,
           status: l.status,
           ordersCount: matchingOrders.length
         };
@@ -187,7 +189,7 @@ export default function SellerDashboard() {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                {["Part Name", "Details", "Price", "Orders", "Status"].map(h => (
+                {["Part Name", "Details", "Price", "Stock", "Orders", "Status"].map(h => (
                   <th key={h} style={{ padding: "14px 20px", textAlign: "left", fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px" }}>{h}</th>
                 ))}
               </tr>
@@ -198,6 +200,7 @@ export default function SellerDashboard() {
                   <td style={{ padding: "16px 20px", fontWeight: 500 }}>{l.name}</td>
                   <td style={{ padding: "16px 20px", color: "var(--muted)", fontSize: "13px", maxWidth: "200px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{l.description || "-"}</td>
                   <td style={{ padding: "16px 20px", fontWeight: 600, color: "var(--accent)" }}>฿{l.price.toLocaleString()}</td>
+                  <td style={{ padding: "16px 20px" }}>{l.quantity}</td>
                   <td style={{ padding: "16px 20px", color: "var(--muted)" }}>{l.ordersCount || 0}</td>
                   <td style={{ padding: "16px 20px" }}><StatusBadge status={l.status} /></td>
                 </tr>

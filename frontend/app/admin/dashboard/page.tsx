@@ -8,6 +8,7 @@ interface PendingListing {
   name: string;
   description: string;
   price: number;
+  quantity?: number;
   seller_id: number;
   seller_name?: string;
   status: string;
@@ -195,7 +196,10 @@ export default function AdminDashboard() {
                   </p>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px" }}>
-                  <span style={{ fontSize: "24px", fontWeight: 700, color: "var(--accent)" }}>฿{l.price.toLocaleString()}</span>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                    <span style={{ fontSize: "24px", fontWeight: 700, color: "var(--accent)" }}>฿{l.price.toLocaleString()}</span>
+                    {l.quantity != null && <span style={{ fontSize: "11px", color: "var(--muted)", marginTop: "2px" }}>{l.quantity} in stock</span>}
+                  </div>
                   <div style={{ display: "flex", gap: "10px" }}>
                     <button className="btn-ghost" style={{ padding: "8px 20px", color: "var(--red)", borderColor: "var(--red)" }} onClick={() => handleUpdatePartStatus(l.id, "rejected")}>
                       Reject
@@ -273,7 +277,10 @@ export default function AdminDashboard() {
                   </p>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px" }}>
-                  <span style={{ fontSize: "24px", fontWeight: 700, color: "var(--accent)" }}>฿{l.price.toLocaleString()}</span>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
+                    <span style={{ fontSize: "24px", fontWeight: 700, color: "var(--accent)" }}>฿{l.price.toLocaleString()}</span>
+                    {l.quantity != null && <span style={{ fontSize: "11px", color: "var(--muted)", marginTop: "2px" }}>{l.quantity} in stock</span>}
+                  </div>
                   <div style={{ display: "flex", gap: "10px" }}>
                     <button className="btn-ghost" style={{ padding: "8px 20px", color: "var(--red)", borderColor: "var(--red)" }} onClick={() => handleDeletePart(l.id)}>
                       Delete

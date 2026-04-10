@@ -26,7 +26,8 @@ def read_admin_stats(_: User = Depends(require_admin), db: Session = Depends(get
 
 @router.get("/parts/active")
 def read_active_parts(_: User = Depends(require_admin), db: Session = Depends(get_db)):
-    return db.query(Part).filter(Part.status == PartStatusEnum.APPROVED).order_by(Part.created_at.desc()).all()
+    parts = db.query(Part).filter(Part.status == PartStatusEnum.APPROVED).order_by(Part.created_at.desc()).all()
+    return [p.to_dict() for p in parts]
 
 @router.delete("/parts/{part_id}")
 def delete_part(part_id: int, _: User = Depends(require_admin), db: Session = Depends(get_db)):
@@ -39,11 +40,13 @@ def delete_part(part_id: int, _: User = Depends(require_admin), db: Session = De
 
 @router.get("/parts/log")
 def read_parts_log(_: User = Depends(require_admin), db: Session = Depends(get_db)):
-    return db.query(Part).filter(Part.status.in_([PartStatusEnum.APPROVED, PartStatusEnum.REJECTED])).order_by(Part.id.desc()).all()
+    parts = db.query(Part).filter(Part.status.in_([PartStatusEnum.APPROVED, PartStatusEnum.REJECTED])).order_by(Part.id.desc()).all()
+    return [p.to_dict() for p in parts]
 
 @router.get("/parts/pending")
 def read_pending_parts(_: User = Depends(require_admin), db: Session = Depends(get_db)):
-    return db.query(Part).filter(Part.status == PartStatusEnum.PENDING).all()
+    parts = db.query(Part).filter(Part.status == PartStatusEnum.PENDING).all()
+    return [p.to_dict() for p in parts]
 
 @router.put("/parts/{part_id}/status")
 def update_part_status(part_id: int, status_update: PartStatusUpdate, _: User = Depends(require_admin), db: Session = Depends(get_db)):

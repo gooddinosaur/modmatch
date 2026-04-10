@@ -9,6 +9,7 @@ interface PendingListing {
   description: string;
   price: number;
   seller_id: number;
+  seller_name?: string;
   status: string;
   created_at: string;
 }
@@ -187,7 +188,7 @@ export default function AdminDashboard() {
                   </div>
                   <h3 style={{ fontSize: "17px", fontWeight: 600, marginBottom: "4px" }}>{l.name}</h3>
                   <p style={{ color: "var(--muted)", fontSize: "13px" }}>
-                    by Seller #{l.seller_id}
+                    by {l.seller_name || `Seller #${l.seller_id}`}
                   </p>
                   <p style={{ color: "var(--muted)", fontSize: "13px", marginTop: "6px", maxWidth: "600px" }}>
                     {l.description || "No description provided"} · Submitted: {new Date(l.created_at).toLocaleDateString()}
@@ -265,7 +266,7 @@ export default function AdminDashboard() {
                   </div>
                   <h3 style={{ fontSize: "17px", fontWeight: 600, marginBottom: "4px" }}>{l.name}</h3>
                   <p style={{ color: "var(--muted)", fontSize: "13px" }}>
-                    by Seller #{l.seller_id}
+                    by {l.seller_name || `Seller #${l.seller_id}`}
                   </p>
                   <p style={{ color: "var(--muted)", fontSize: "13px", marginTop: "6px", maxWidth: "600px" }}>
                     {l.description || "No description provided"} · Listed on: {new Date(l.created_at).toLocaleDateString()}

@@ -38,6 +38,7 @@ class RegisterRequest(BaseModel):
     email: str
     password: str
     role: RoleEnum  # buyer or seller only from this endpoint
+    display_name: str | None = None
 
 
 class LoginRequest(BaseModel):
@@ -74,6 +75,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
         email=payload.email,
         hashed_password=hash_password(payload.password),
         role=payload.role,
+        display_name=payload.display_name,
     )
     db.add(user)
     db.commit()

@@ -33,6 +33,8 @@ export default function SellerDashboard() {
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [newPrice, setNewPrice] = useState("");
+  const [newBrand, setNewBrand] = useState("");
+  const [newCategory, setNewCategory] = useState("");
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
@@ -102,13 +104,17 @@ export default function SellerDashboard() {
         body: JSON.stringify({
           name: newName,
           description: newDesc,
-          price: parseFloat(newPrice) || 0
+          price: parseFloat(newPrice) || 0,
+          brand: newBrand,
+          category: newCategory
         })
       });
       if (res.ok) {
         setNewName("");
         setNewDesc("");
         setNewPrice("");
+        setNewBrand("");
+        setNewCategory("");
         setTab("listings");
         fetchDashboardData();
       }
@@ -229,6 +235,24 @@ export default function SellerDashboard() {
             <div>
               <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Part Name</label>
               <input value={newName} onChange={e => setNewName(e.target.value)} placeholder="e.g. K&N Cold Air Intake" />
+            </div>
+            <div>
+              <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Brand</label>
+              <input value={newBrand} onChange={e => setNewBrand(e.target.value)} placeholder="e.g. K&N" />
+            </div>
+            <div>
+              <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Category</label>
+              <select value={newCategory} onChange={e => setNewCategory(e.target.value)}>
+                <option value="">Select category...</option>
+                <option value="Intake">Intake</option>
+                <option value="Exhaust">Exhaust</option>
+                <option value="Suspension">Suspension</option>
+                <option value="Brakes">Brakes</option>
+                <option value="Engine">Engine</option>
+                <option value="Chassis">Chassis</option>
+                <option value="Aero">Aero</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
             <div>
               <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Description & Details</label>

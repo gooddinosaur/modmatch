@@ -128,14 +128,14 @@ def delete_vehicle(vehicle_id: int, current_user: User = Depends(require_buyer),
 @router.get("/search")
 def search_parts(make: str = None, model: str = None, year: int = None, db: Session = Depends(get_db)):
     query = db.query(Part).filter(Part.status == PartStatusEnum.APPROVED)
-    return query.all()
+    return [p.to_dict() for p in query.all()]
 
 @router.get("/parts/{part_id}")
 def get_part_details(part_id: int, db: Session = Depends(get_db)):
     part = db.query(Part).filter(Part.id == part_id, Part.status == PartStatusEnum.APPROVED).first()
     if not part:
         raise HTTPException(status_code=404, detail="Part not found")
-    return part
+    return part.to_dict()
 
 @router.post("/buy")
 def buy_part(order_data: OrderCreate, current_user: User = Depends(require_buyer), db: Session = Depends(get_db)):

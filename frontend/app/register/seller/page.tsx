@@ -42,7 +42,7 @@ export default function SellerRegisterPage() {
     if (!shop.shopName) { setError("Shop name is required."); return; }
     setLoading(true);
     try {
-      await register(email, password, "seller");
+      await register(email, password, "seller", shop.shopName);
       // TODO: save shop data to API
     } catch (e: any) {
       setError(e.message);

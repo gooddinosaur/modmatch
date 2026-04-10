@@ -11,6 +11,8 @@ class PartCreate(BaseModel):
     name: str
     description: str
     price: float
+    brand: str | None = None
+    category: str | None = None
 
 @router.post("/listings")
 def create_listing(part_data: PartCreate, current_user: User = Depends(require_seller), db: Session = Depends(get_db)):
@@ -19,6 +21,8 @@ def create_listing(part_data: PartCreate, current_user: User = Depends(require_s
         name=part_data.name,
         description=part_data.description,
         price=part_data.price,
+        brand=part_data.brand,
+        category=part_data.category,
         status=PartStatusEnum.PENDING
     )
     db.add(new_part)
@@ -28,7 +32,8 @@ def create_listing(part_data: PartCreate, current_user: User = Depends(require_s
 
 @router.get("/listings")
 def get_my_listings(current_user: User = Depends(require_seller), db: Session = Depends(get_db)):
-    return db.query(Part).filter(Part.seller_id == current_user.id).all()
+    parts = db.query(Part).filter(Part.seller_id == current_user.id).all()
+    return [p.to_dict() for p in parts]
 
 @router.get("/orders")
 def get_my_orders(current_user: User = Depends(require_seller), db: Session = Depends(get_db)):

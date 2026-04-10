@@ -87,12 +87,22 @@ class Part(Base):
     name = Column(String, index=True, nullable=False)
     description = Column(String)
     price = Column(Float, nullable=False)
+    brand = Column(String, nullable=True)
+    category = Column(String, nullable=True)
     status = Column(Enum(PartStatusEnum), default=PartStatusEnum.PENDING)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     seller = relationship("User", back_populates="parts")
     fitments = relationship("PartFitment", back_populates="part")
     orders = relationship("Order", back_populates="part")
+
+    def to_dict(self):
+        d = {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        if self.seller:
+            d["seller_name"] = self.seller.display_name or f"Seller #{self.seller_id}"
+            d["seller_email"] = self.seller.email
+            d["seller"] = d["seller_name"] # For convenience
+        return d
 
 
 class PartFitment(Base):

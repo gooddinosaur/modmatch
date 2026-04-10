@@ -12,7 +12,7 @@ export interface Part {
   fitment?: string[];
   status: "pending" | "approved" | "rejected" | "shipped" | "confirmed" | "held";
   category?: string;
-  seller?: string;
+  seller_name?: string;
   seller_id?: number | string;
   description?: string;
 }
@@ -52,7 +52,7 @@ export default function PartCard({ part, hideStatus }: { readonly part: Part; re
       {/* Part name */}
       <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "4px" }}>{part.name}</h3>
       <p style={{ color: "var(--muted)", fontSize: "13px", marginBottom: "12px" }}>
-        {part.brand ? `by ${part.brand}` : "Unknown Brand"} {part.seller ? `· ${part.seller}` : `· Seller #${part.seller_id}`}
+        {part.brand ? `by ${part.brand}` : "Unknown Brand"} · {part.seller_name || `Seller #${part.seller_id}`}
       </p>
 
       {/* Fitment */}

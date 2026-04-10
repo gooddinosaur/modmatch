@@ -193,6 +193,34 @@ export default function BuyerProfilePage() {
     }
   };
 
+  const confirmOrder = async (id: string | number) => {
+    try {
+      const token = user?.token;
+      if (!token) return;
+      await fetch(`http://localhost:8000/api/v1/buyer/orders/${id}/confirm`, {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      fetchProfileData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const disputeOrder = async (id: string | number) => {
+    try {
+      const token = user?.token;
+      if (!token) return;
+      await fetch(`http://localhost:8000/api/v1/buyer/orders/${id}/report`, {
+        method: "PUT",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      fetchProfileData();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <div style={{ maxWidth: "900px", margin: "0 auto", padding: "48px 32px" }}>
       <div style={{ marginBottom: "40px" }}>
@@ -462,6 +490,16 @@ export default function BuyerProfilePage() {
                         <div style={{ fontWeight: 700 }}>${(order.amount_paid || 0).toFixed(2)}</div>
                     </div>
                   </div>
+                  {order.status.toLowerCase() === "shipped" && (
+                    <div style={{ padding: "16px", borderTop: "1px solid var(--border)", display: "flex", gap: "10px", justifyContent: "flex-end" }}>
+                      <button className="btn-ghost" style={{ padding: "8px 16px", color: "var(--red)", borderColor: "var(--red)", fontSize: "13px" }} onClick={() => disputeOrder(order.id)}>
+                        Dispute
+                      </button>
+                      <button className="btn-accent" style={{ padding: "8px 16px", background: "var(--green)", color: "#000", fontSize: "13px" }} onClick={() => confirmOrder(order.id)}>
+                        Confirm Delivery
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

@@ -37,7 +37,22 @@ def get_my_listings(current_user: User = Depends(require_seller), db: Session = 
 
 @router.get("/orders")
 def get_my_orders(current_user: User = Depends(require_seller), db: Session = Depends(get_db)):
-    return db.query(Order).join(Part).filter(Part.seller_id == current_user.id).all()
+    orders = db.query(Order).join(Part).filter(Part.seller_id == current_user.id).order_by(Order.created_at.desc()).all()
+    result = []
+    for o in orders:
+        buyer_name = o.buyer.display_name or o.buyer.email if o.buyer else f"Buyer #{o.buyer_id}"
+        part_name = o.part.name if o.part else f"Part #{o.part_id}"
+        result.append({
+            "id": o.id,
+            "status": o.status,
+            "amount_paid": o.amount_paid,
+            "created_at": o.created_at,
+            "buyer_name": buyer_name,
+            "buyer_id": o.buyer_id,
+            "part_name": part_name,
+            "part_id": o.part_id
+        })
+    return result
 
 @router.put("/orders/{order_id}/mark_shipped")
 def mark_order_shipped(order_id: int, tracking_number: str, current_user: User = Depends(require_seller), db: Session = Depends(get_db)):

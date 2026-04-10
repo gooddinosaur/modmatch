@@ -16,9 +16,11 @@ interface OrderItem {
   id: string | number;
   partName: string;
   buyerId: string | number;
+  buyerName?: string;
   amount_paid: number;
   status: "payment_held" | "shipped" | "confirmed" | "funds_released" | "refunded" | "reported";
   date: string;
+  part_id?: string | number;
 }
 
 export default function SellerDashboard() {
@@ -57,20 +59,23 @@ export default function SellerDashboard() {
         headers: { "Authorization": `Bearer ${user.token}` }
       });
       let ordData = [];
-      if (ordRes.ok) ordData = await ordRes.json();
+        if (ordRes.ok) {
+          ordData = await ordRes.json();
+        }
 
-      // Format Orders
-      const formattedOrders: OrderItem[] = ordData.map((o: any) => ({
-        id: o.id,
-        partName: o.part?.name || `Part #${o.part_id}`,
-        buyerId: o.buyer_id, // We'd ideally fetch buyer name, use ID for now
-        amount_paid: o.amount_paid,
-        status: o.status,
-        date: new Date(o.created_at).toLocaleDateString(),
-        part_id: o.part_id
-      }));
+        // Format Orders
+        const formattedOrders: OrderItem[] = ordData.map((o: any) => ({
+          id: o.id,
+          partName: o.part_name || o.part?.name || `Part #${o.part_id}`,
+          buyerId: o.buyer_id, // We'd ideally fetch buyer name, use ID for now
+          buyerName: o.buyer_name || o.buyer?.display_name || `Buyer #${o.buyer_id}`,
+          amount_paid: o.amount_paid,
+          status: o.status,
+          date: new Date(o.created_at).toLocaleDateString(),
+          part_id: o.part_id
+        }));
 
-      // Calculate orders count per listing
+        // Calculate orders count per listing
       const formattedListings: Listing[] = lsData.map((l: any) => {
         const matchingOrders = formattedOrders.filter((ord: any) => ord.part_id === l.id);
         return {
@@ -216,7 +221,7 @@ export default function SellerDashboard() {
                 <tr key={o.id} style={{ borderBottom: i < orders.length - 1 ? "1px solid var(--border)" : "none" }}>
                   <td style={{ padding: "16px 20px", fontFamily: "monospace", fontSize: "13px", color: "var(--muted)" }}>{o.id}</td>
                   <td style={{ padding: "16px 20px", fontWeight: 500 }}>{o.partName}</td>
-                  <td style={{ padding: "16px 20px", color: "var(--muted)", fontSize: "13px" }}>Buyer #{o.buyerId}</td>
+                  <td style={{ padding: "16px 20px", color: "var(--muted)", fontSize: "13px" }}>{o.buyerName}</td>
                   <td style={{ padding: "16px 20px", fontWeight: 600, color: "var(--accent)" }}>฿{o.amount_paid.toLocaleString()}</td>
                   <td style={{ padding: "16px 20px", color: "var(--muted)", fontSize: "13px" }}>{o.date}</td>
                   <td style={{ padding: "16px 20px" }}><StatusBadge status={o.status} /></td>

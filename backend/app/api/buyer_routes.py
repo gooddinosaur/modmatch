@@ -127,12 +127,12 @@ def delete_vehicle(vehicle_id: int, current_user: User = Depends(require_buyer),
 
 @router.get("/search")
 def search_parts(make: str = None, model: str = None, year: int = None, db: Session = Depends(get_db)):
-    query = db.query(Part).filter(Part.status == PartStatusEnum.APPROVED)
+    query = db.query(Part).filter(Part.status == PartStatusEnum.APPROVED, Part.quantity > 0)
     return [p.to_dict() for p in query.all()]
 
 @router.get("/parts/{part_id}")
 def get_part_details(part_id: int, db: Session = Depends(get_db)):
-    part = db.query(Part).filter(Part.id == part_id, Part.status == PartStatusEnum.APPROVED).first()
+    part = db.query(Part).filter(Part.id == part_id, Part.status == PartStatusEnum.APPROVED, Part.quantity > 0).first()
     if not part:
         raise HTTPException(status_code=404, detail="Part not found")
     return part.to_dict()
@@ -140,7 +140,7 @@ def get_part_details(part_id: int, db: Session = Depends(get_db)):
 @router.post("/buy")
 def buy_part(order_data: OrderCreate, current_user: User = Depends(require_buyer), db: Session = Depends(get_db)):
     part = db.query(Part).filter(Part.id == order_data.part_id).first()
-    if not part or part.status != PartStatusEnum.APPROVED:
+    if not part or part.status != PartStatusEnum.APPROVED or part.quantity <= 0:
         raise HTTPException(status_code=400, detail="Part not available for purchase")
     new_order = Order(
         buyer_id=current_user.id,  # real user
@@ -149,12 +149,10 @@ def buy_part(order_data: OrderCreate, current_user: User = Depends(require_buyer
         amount_paid=order_data.amount
     )
     db.add(new_order)
+    
+    part.quantity -= 1
     db.commit()
     db.refresh(new_order)
-    
-    # Mark part as sold to prevent double-buying (if desired, or we just rely on order tracking)
-    part.status = PartStatusEnum.PENDING # Actually, changing to PENDING or adding a SOLD status. We'll leave it simple.
-    db.commit()
     
     return {
         "message": "Payment held in escrow, awaiting seller to ship", 

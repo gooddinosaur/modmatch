@@ -11,6 +11,7 @@ class PartCreate(BaseModel):
     name: str
     description: str
     price: float
+    quantity: int = 1
     brand: str | None = None
     category: str | None = None
 
@@ -21,6 +22,7 @@ def create_listing(part_data: PartCreate, current_user: User = Depends(require_s
         name=part_data.name,
         description=part_data.description,
         price=part_data.price,
+        quantity=part_data.quantity,
         brand=part_data.brand,
         category=part_data.category,
         status=PartStatusEnum.PENDING

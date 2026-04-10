@@ -19,7 +19,7 @@ interface VehicleData {
 const MAKES = ["Honda", "Toyota", "Mazda", "Subaru", "Nissan", "Mitsubishi", "BMW", "Mercedes-Benz", "Audi", "Ford", "Chevrolet", "Other"];
 
 export default function BuyerRegisterPage() {
-  const { register } = useAuth();
+  const { login } = useAuth();
   const [step, setStep] = useState<Step>("account");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,8 +52,56 @@ export default function BuyerRegisterPage() {
     setLoading(true);
     setError("");
     try {
-      await register(email, password, "buyer");
-      // TODO: save shipping & vehicle to API
+      // 1. Register the user to get the token
+      const res = await fetch("http://localhost:8000/api/v1/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, role: "buyer" }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || "Registration failed");
+      }
+      const data = await res.json();
+      const token = data.access_token;
+      
+      // 2. Add shipping address
+      if (shipping.addressLine1 && shipping.city) {
+        await fetch("http://localhost:8000/api/v1/buyer/addresses", {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            label: "Home",
+            first_name: shipping.firstName || "Unknown",
+            last_name: shipping.lastName || "Unknown",
+            phone: shipping.phone || "-",
+            address_line1: shipping.addressLine1,
+            address_line2: shipping.addressLine2 || "",
+            city: shipping.city,
+            province: shipping.province,
+            postal_code: shipping.postalCode
+          })
+        });
+      }
+
+      // 3. Add vehicle
+      if (vehicle.make && vehicle.model && vehicle.year) {
+        await fetch("http://localhost:8000/api/v1/buyer/vehicles", {
+          method: "POST",
+          headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            make: vehicle.make,
+            model: vehicle.model,
+            year: vehicle.year,
+            sub_model: vehicle.subModel || ""
+          })
+        });
+      }
+
+      // 4. Finally log them in via context properly (which redirects)
+      // Since context `register` also tries to hit `/auth/register` and will get an "Email already registered" error,
+      // we need to call `login` instead because we just manually created the user above!
+      await login(email, password);
     } catch (e: any) {
       setError(e.message);
       setStep("account");

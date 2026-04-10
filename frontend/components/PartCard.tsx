@@ -9,6 +9,7 @@ export interface Part {
   name: string;
   brand: string;
   price: number;
+  quantity?: number;
   fitment?: string[];
   status: "pending" | "approved" | "rejected" | "shipped" | "confirmed" | "held";
   category?: string;
@@ -73,9 +74,14 @@ export default function PartCard({ part, hideStatus }: { readonly part: Part; re
 
       {/* Price + CTA logic */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ fontSize: "22px", fontWeight: 700, color: "var(--accent)" }}>
-          ฿{part.price.toLocaleString()}
-        </span>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <span style={{ fontSize: "22px", fontWeight: 700, color: "var(--accent)" }}>
+            ฿{part.price.toLocaleString()}
+          </span>
+          <span style={{ fontSize: "11px", color: "var(--muted)", marginTop: "2px" }}>
+            {part.quantity !== undefined ? `${part.quantity} in stock` : ""}
+          </span>
+        </div>
         {(!user || user.role === "buyer") && (
           <button className="btn-accent" style={{ padding: "8px 18px", fontSize: "13px" }} onClick={() => router.push(`/checkout/${part.id}`)}>
             Buy Now

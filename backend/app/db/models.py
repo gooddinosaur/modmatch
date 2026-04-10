@@ -87,6 +87,7 @@ class Part(Base):
     name = Column(String, index=True, nullable=False)
     description = Column(String)
     price = Column(Float, nullable=False)
+    quantity = Column(Integer, default=1)
     brand = Column(String, nullable=True)
     category = Column(String, nullable=True)
     status = Column(Enum(PartStatusEnum), default=PartStatusEnum.PENDING)

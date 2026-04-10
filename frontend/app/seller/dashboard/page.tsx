@@ -35,6 +35,7 @@ export default function SellerDashboard() {
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
   const [newPrice, setNewPrice] = useState("");
+  const [newQuantity, setNewQuantity] = useState("1");
   const [newBrand, setNewBrand] = useState("");
   const [newCategory, setNewCategory] = useState("");
 
@@ -109,7 +110,8 @@ export default function SellerDashboard() {
         body: JSON.stringify({
           name: newName,
           description: newDesc,
-          price: parseFloat(newPrice) || 0,
+          price: Number.parseFloat(newPrice) || 0,
+          quantity: Number.parseInt(newQuantity) || 1,
           brand: newBrand,
           category: newCategory
         })
@@ -269,9 +271,13 @@ export default function SellerDashboard() {
             </div>
             <div>
               <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Price (฿)</label>
-              <input type="number" value={newPrice} onChange={e => setNewPrice(e.target.value)} placeholder="0" />
+              <input type="number" value={newPrice} onChange={e => setNewPrice(e.target.value)} placeholder="e.g. 5000" />
             </div>
-            <div style={{ display: "flex", gap: "12px", paddingTop: "8px" }}>
+            <div>
+              <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Quantity</label>
+              <input type="number" value={newQuantity} onChange={e => setNewQuantity(e.target.value)} placeholder="e.g. 1" min="1" />
+            </div>
+            <div style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
               <button className="btn-accent" style={{ flex: 1 }} onClick={handleCreateListing}>Submit for Review</button>
               <button className="btn-ghost" onClick={() => setTab("listings")}>Cancel</button>
             </div>

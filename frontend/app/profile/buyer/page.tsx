@@ -489,17 +489,17 @@ export default function BuyerProfilePage() {
                         <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "8px" }}>Seller: {order.seller_name}</p>
                         <div style={{ fontWeight: 700 }}>${(order.amount_paid || 0).toFixed(2)}</div>
                     </div>
+                    {["shipped", "payment_held", "held"].includes(order.status.toLowerCase()) && (
+                      <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", flexShrink: 0 }}>
+                        <button className="btn-ghost" style={{ padding: "8px 16px", color: "var(--red)", borderColor: "var(--red)", fontSize: "13px" }} onClick={() => disputeOrder(order.id)}>
+                          Dispute
+                        </button>
+                        <button className="btn-accent" style={{ padding: "8px 16px", background: "var(--green)", color: "#000", fontSize: "13px" }} onClick={() => confirmOrder(order.id)}>
+                          Confirm Delivery
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  {order.status.toLowerCase() === "shipped" && (
-                    <div style={{ padding: "16px", borderTop: "1px solid var(--border)", display: "flex", gap: "10px", justifyContent: "flex-end" }}>
-                      <button className="btn-ghost" style={{ padding: "8px 16px", color: "var(--red)", borderColor: "var(--red)", fontSize: "13px" }} onClick={() => disputeOrder(order.id)}>
-                        Dispute
-                      </button>
-                      <button className="btn-accent" style={{ padding: "8px 16px", background: "var(--green)", color: "#000", fontSize: "13px" }} onClick={() => confirmOrder(order.id)}>
-                        Confirm Delivery
-                      </button>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>

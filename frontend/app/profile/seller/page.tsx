@@ -1,8 +1,8 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Store, Edit3, Save, X, ExternalLink } from "lucide-react";
-import Link from "next/link";
+import { Store, Save } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface ShopProfile {
   shopName: string; description: string; phone: string;
@@ -12,27 +12,94 @@ interface ShopProfile {
 }
 
 const INITIAL: ShopProfile = {
-  shopName: "TurboGarage BKK",
-  description: "Bangkok's premier JDM performance parts dealer. Specializing in Honda, Toyota, and Subaru performance upgrades.",
-  phone: "081-234-5678",
-  addressLine1: "456/78 Rama 9 Road", addressLine2: "Huai Khwang",
-  city: "Bangkok", province: "Bangkok", postalCode: "10310",
-  lineId: "@turbogaragebkk", facebook: "facebook.com/turbogaragebkk",
-  specialties: "Honda, Toyota, Subaru, JDM Parts, Turbo Systems",
+  shopName: "", description: "", phone: "",
+  addressLine1: "", addressLine2: "", city: "",
+  province: "", postalCode: "", lineId: "",
+  facebook: "", specialties: "",
 };
 
 export default function SellerProfileEditPage() {
   const { user } = useAuth();
-  const [editing, setEditing] = useState(false);
-  const [profile, setProfile] = useState<ShopProfile>(INITIAL);
+  const token = user?.token;
+  const router = useRouter();
   const [draft, setDraft] = useState<ShopProfile>(INITIAL);
+  const [loading, setLoading] = useState(true);
   const [saved, setSaved] = useState(false);
 
-  const handleSave = () => {
-    setProfile(draft);
-    setEditing(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+
+  useEffect(() => {
+    if (!token) return;
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch(`${API}/seller/profile`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setDraft({
+            shopName: data.display_name || "",
+            description: data.description || "",
+            phone: data.phone || "",
+            addressLine1: data.address?.address_line1 || "",
+            addressLine2: data.address?.address_line2 || "",
+            city: data.address?.city || "",
+            province: data.address?.province || "",
+            postalCode: data.address?.postal_code || "",
+            lineId: data.line_id || "",
+            facebook: data.facebook || "",
+            specialties: data.specialties || "",
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [API, token]);
+
+  const handleSave = async () => {
+    try {
+      const payload = {
+        display_name: draft.shopName || null,
+        description: draft.description || null,
+        phone: draft.phone || null,
+        line_id: draft.lineId || null,
+        facebook: draft.facebook || null,
+        specialties: draft.specialties || null,
+        address: {
+          address_line1: draft.addressLine1 || null,
+          address_line2: draft.addressLine2 || null,
+          city: draft.city || null,
+          province: draft.province || null,
+          postal_code: draft.postalCode || null
+        }
+      };
+
+      const res = await fetch(`${API}/seller/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (res.ok) {
+        setSaved(true);
+        setTimeout(() => {
+          if (user?.id) {
+            router.push(`/seller/${user.id}`);
+          } else {
+            router.push(`/seller/dashboard`);
+          }
+        }, 1500);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const Field = ({ label, value, field, placeholder, multiline }: {
@@ -42,17 +109,11 @@ export default function SellerProfileEditPage() {
       <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>
         {label}
       </label>
-      {editing ? (
-        multiline ? (
-          <textarea value={draft[field]} onChange={e => setDraft({ ...draft, [field]: e.target.value })} placeholder={placeholder}
-            style={{ background: "var(--surface2)", border: "1px solid var(--border)", color: "var(--text)", padding: "10px 14px", borderRadius: "6px", fontFamily: "DM Sans, sans-serif", fontSize: "14px", width: "100%", minHeight: "100px", resize: "vertical", outline: "none" }} />
-        ) : (
-          <input value={draft[field]} placeholder={placeholder} onChange={e => setDraft({ ...draft, [field]: e.target.value })} />
-        )
+      {multiline ? (
+        <textarea value={draft[field]} onChange={e => setDraft({ ...draft, [field]: e.target.value })} placeholder={placeholder}
+          style={{ background: "var(--surface2)", border: "1px solid var(--border)", color: "var(--text)", padding: "10px 14px", borderRadius: "6px", fontFamily: "DM Sans, sans-serif", fontSize: "14px", width: "100%", minHeight: "100px", resize: "vertical", outline: "none" }} />
       ) : (
-        <div style={{ padding: "10px 14px", background: "var(--surface2)", borderRadius: "6px", fontSize: "14px", border: "1px solid var(--border)", color: value ? "var(--text)" : "var(--muted)", minHeight: multiline ? "80px" : "auto", lineHeight: 1.6 }}>
-          {value || "—"}
-        </div>
+        <input value={draft[field]} placeholder={placeholder} onChange={e => setDraft({ ...draft, [field]: e.target.value })} />
       )}
     </div>
   );
@@ -67,31 +128,13 @@ export default function SellerProfileEditPage() {
           <p style={{ color: "var(--muted)" }}>{user?.email}</p>
         </div>
         <div style={{ display: "flex", gap: "10px" }}>
-          <Link href="/seller/seller_1" style={{ textDecoration: "none" }}>
-            <button className="btn-ghost" style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", fontSize: "13px" }}>
-              <ExternalLink size={13} /> View Public Profile
-            </button>
-          </Link>
-          {!editing ? (
-            <button className="btn-ghost" style={{ display: "flex", alignItems: "center", gap: "6px" }}
-              onClick={() => { setDraft(profile); setEditing(true); }}>
-              <Edit3 size={14} /> Edit Profile
-            </button>
-          ) : (
-            <div style={{ display: "flex", gap: "8px" }}>
-              <button className="btn-ghost" style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px" }}
-                onClick={() => { setDraft(profile); setEditing(false); }}>
-                <X size={14} /> Cancel
-              </button>
-              <button onClick={handleSave} style={{
-                background: "var(--accent2)", color: "#fff", fontWeight: 600, padding: "8px 20px",
-                borderRadius: "6px", border: "none", cursor: "pointer", fontFamily: "DM Sans, sans-serif",
-                fontSize: "14px", display: "flex", alignItems: "center", gap: "6px",
-              }}>
-                <Save size={14} /> Save
-              </button>
-            </div>
-          )}
+          <button onClick={handleSave} style={{
+            background: "var(--accent2)", color: "#fff", fontWeight: 600, padding: "8px 20px",
+            borderRadius: "6px", border: "none", cursor: "pointer", fontFamily: "DM Sans, sans-serif",
+            fontSize: "14px", display: "flex", alignItems: "center", gap: "6px",
+          }}>
+            <Save size={14} /> Save
+          </button>
         </div>
       </div>
 
@@ -109,9 +152,9 @@ export default function SellerProfileEditPage() {
               <h2 style={{ fontSize: "15px", fontWeight: 600 }}>Shop Info</h2>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <Field label="Shop Name *" value={profile.shopName} field="shopName" placeholder="Your shop name" />
-              <Field label="Description" value={profile.description} field="description" placeholder="Tell buyers about your shop..." multiline />
-              <Field label="Specialties (comma separated)" value={profile.specialties} field="specialties" placeholder="Honda, JDM, Turbo Systems..." />
+              <Field label="Shop Name *" value={draft.shopName} field="shopName" placeholder="Your shop name" />
+              <Field label="Description" value={draft.description} field="description" placeholder="Tell buyers about your shop..." multiline />
+              <Field label="Specialties (comma separated)" value={draft.specialties} field="specialties" placeholder="Honda, JDM, Turbo Systems..." />
             </div>
           </div>
           <div className="card" style={{ padding: "24px" }}>
@@ -124,9 +167,9 @@ export default function SellerProfileEditPage() {
                 </div>
                 <p style={{ fontSize: "11px", color: "var(--muted)", marginTop: "4px" }}>Email cannot be changed</p>
               </div>
-              <Field label="Phone" value={profile.phone} field="phone" placeholder="08X-XXX-XXXX" />
-              <Field label="LINE ID" value={profile.lineId} field="lineId" placeholder="@yourshop" />
-              <Field label="Facebook" value={profile.facebook} field="facebook" placeholder="facebook.com/yourshop" />
+              <Field label="Phone" value={draft.phone} field="phone" placeholder="08X-XXX-XXXX" />
+              <Field label="LINE ID" value={draft.lineId} field="lineId" placeholder="@yourshop" />
+              <Field label="Facebook" value={draft.facebook} field="facebook" placeholder="facebook.com/yourshop" />
             </div>
           </div>
         </div>
@@ -135,13 +178,13 @@ export default function SellerProfileEditPage() {
           <div className="card" style={{ padding: "24px" }}>
             <h2 style={{ fontSize: "15px", fontWeight: 600, marginBottom: "20px" }}>Shop Address</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <Field label="Address Line 1" value={profile.addressLine1} field="addressLine1" placeholder="Building / Street" />
-              <Field label="Address Line 2" value={profile.addressLine2} field="addressLine2" placeholder="Subdistrict / District" />
+              <Field label="Address Line 1" value={draft.addressLine1} field="addressLine1" placeholder="Building / Street" />
+              <Field label="Address Line 2" value={draft.addressLine2} field="addressLine2" placeholder="Subdistrict / District" />
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                <Field label="City" value={profile.city} field="city" placeholder="Bangkok" />
-                <Field label="Province" value={profile.province} field="province" placeholder="Bangkok" />
+                <Field label="City" value={draft.city} field="city" placeholder="Bangkok" />
+                <Field label="Province" value={draft.province} field="province" placeholder="Bangkok" />
               </div>
-              <Field label="Postal Code" value={profile.postalCode} field="postalCode" placeholder="10110" />
+              <Field label="Postal Code" value={draft.postalCode} field="postalCode" placeholder="10110" />
             </div>
           </div>
           <div className="card" style={{ padding: "24px" }}>

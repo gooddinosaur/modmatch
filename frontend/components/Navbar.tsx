@@ -19,7 +19,7 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const profileHref = user?.role === "seller" ? "/profile/seller" : "/profile/buyer";
+  const profileHref = user?.role === "seller" ? `/seller/${user.id}` : "/profile/buyer";
   const homeHref = user?.role === "seller" ? "/seller/dashboard" : user?.role === "admin" ? "/admin/dashboard" : "/search";
 
   return (

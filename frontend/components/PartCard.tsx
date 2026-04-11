@@ -3,6 +3,7 @@
 import { useAuth } from "@/context/AuthContext";
 import StatusBadge from "./StatusBadge";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export interface Part {
   id: string | number;
@@ -16,6 +17,7 @@ export interface Part {
   seller_name?: string;
   seller_id?: number | string;
   description?: string;
+  seller?: string;
 }
 
 export default function PartCard({ part, hideStatus }: { readonly part: Part; readonly hideStatus?: boolean }) {
@@ -53,7 +55,14 @@ export default function PartCard({ part, hideStatus }: { readonly part: Part; re
       {/* Part name */}
       <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "4px" }}>{part.name}</h3>
       <p style={{ color: "var(--muted)", fontSize: "13px", marginBottom: "12px" }}>
-        {part.brand ? `by ${part.brand}` : "Unknown Brand"} · {part.seller_name || `Seller #${part.seller_id}`}
+        {part.brand ? `by ${part.brand}` : "Unknown Brand"} ·{" "}
+        <Link href={`/seller/${part.seller_id}`} passHref>
+          <span style={{ color: "var(--accent)", cursor: "pointer", textDecoration: "none" }}
+            onMouseEnter={e => e.currentTarget.style.textDecoration = "underline"}
+            onMouseLeave={e => e.currentTarget.style.textDecoration = "none"}>
+            {part.seller_name || `Seller #${part.seller_id}`}
+          </span>
+        </Link>
       </p>
 
       {/* Fitment */}

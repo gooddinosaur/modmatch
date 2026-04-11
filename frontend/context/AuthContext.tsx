@@ -6,6 +6,7 @@ interface AuthUser {
   email: string;
   role: "buyer" | "seller" | "admin";
   token: string;
+  id?: number;
 }
 
 interface AuthContextType {
@@ -44,7 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(err.detail || "Login failed");
     }
     const data = await res.json();
-    const authUser: AuthUser = { email: data.email, role: data.role, token: data.access_token };
+    const authUser: AuthUser = { email: data.email, role: data.role, token: data.access_token, id: data.id };
     setUser(authUser);
     localStorage.setItem("modmatch_user", JSON.stringify(authUser));
 
@@ -65,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       throw new Error(err.detail || "Registration failed");
     }
     const data = await res.json();
-    const authUser: AuthUser = { email: data.email, role: data.role, token: data.access_token };
+    const authUser: AuthUser = { email: data.email, role: data.role, token: data.access_token, id: data.id };
     setUser(authUser);
     localStorage.setItem("modmatch_user", JSON.stringify(authUser));
 

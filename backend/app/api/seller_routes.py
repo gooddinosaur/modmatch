@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from ..db.session import get_db
-from ..db.models import Part, PartStatusEnum, Order, OrderStatusEnum, User
+from ..db.models import Part, PartStatusEnum, Order, OrderStatusEnum, User, UserAddress
 from ..domain.auth_permission import require_seller  # NEW
 from pydantic import BaseModel
 
@@ -72,3 +72,101 @@ def withdraw_funds(order_id: int, current_user: User = Depends(require_seller), 
     if not order or order.status not in [OrderStatusEnum.CONFIRMED, OrderStatusEnum.FUNDS_RELEASED]:
         raise HTTPException(status_code=400, detail="Funds not available for withdrawal yet")
     return {"message": "Funds successfully withdrawn", "amount": order.amount_paid}
+
+class AddressSchema(BaseModel):
+    label: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    phone: str | None = None
+    address_line1: str | None = None
+    address_line2: str | None = None
+    city: str | None = None
+    province: str | None = None
+    postal_code: str | None = None
+
+class SellerProfileUpdate(BaseModel):
+    display_name: str | None = None
+    phone: str | None = None
+    description: str | None = None
+    line_id: str | None = None
+    facebook: str | None = None
+    specialties: str | None = None
+    address: AddressSchema | None = None
+
+@router.get("/profile")
+def get_profile(current_user: User = Depends(require_seller), db: Session = Depends(get_db)):
+    address = db.query(UserAddress).filter(UserAddress.user_id == current_user.id, UserAddress.is_default == True).first()
+    if not address:
+        address = db.query(UserAddress).filter(UserAddress.user_id == current_user.id).first()
+        
+    address_dict = None
+    if address:
+        address_dict = {
+            "label": address.label,
+            "first_name": address.first_name,
+            "last_name": address.last_name,
+            "phone": address.phone,
+            "address_line1": address.address_line1,
+            "address_line2": address.address_line2,
+            "city": address.city,
+            "province": address.province,
+            "postal_code": address.postal_code,
+        }
+        
+    return {
+        "email": current_user.email,
+        "display_name": current_user.display_name,
+        "phone": current_user.phone,
+        "description": current_user.description,
+        "line_id": current_user.line_id,
+        "facebook": current_user.facebook,
+        "specialties": current_user.specialties,
+        "address": address_dict
+    }
+
+@router.put("/profile")
+def update_profile(profile_data: SellerProfileUpdate, current_user: User = Depends(require_seller), db: Session = Depends(get_db)):
+    if profile_data.display_name is not None:
+        current_user.display_name = profile_data.display_name
+    if profile_data.phone is not None:
+        current_user.phone = profile_data.phone
+    if profile_data.description is not None:
+        current_user.description = profile_data.description
+    if profile_data.line_id is not None:
+        current_user.line_id = profile_data.line_id
+    if profile_data.facebook is not None:
+        current_user.facebook = profile_data.facebook
+    if profile_data.specialties is not None:
+        current_user.specialties = profile_data.specialties
+        
+    if profile_data.address:
+        address = db.query(UserAddress).filter(UserAddress.user_id == current_user.id, UserAddress.is_default == True).first()
+        if not address:
+            address = db.query(UserAddress).filter(UserAddress.user_id == current_user.id).first()
+            
+        if not address:
+            address = UserAddress(user_id=current_user.id, is_default=True)
+            db.add(address)
+            
+        if profile_data.address.label is not None:
+            address.label = profile_data.address.label
+        if profile_data.address.first_name is not None:
+            address.first_name = profile_data.address.first_name
+        if profile_data.address.last_name is not None:
+            address.last_name = profile_data.address.last_name
+        if profile_data.address.phone is not None:
+            address.phone = profile_data.address.phone
+        if profile_data.address.address_line1 is not None:
+            address.address_line1 = profile_data.address.address_line1
+        if profile_data.address.address_line2 is not None:
+            address.address_line2 = profile_data.address.address_line2
+        if profile_data.address.city is not None:
+            address.city = profile_data.address.city
+        if profile_data.address.province is not None:
+            address.province = profile_data.address.province
+        if profile_data.address.postal_code is not None:
+            address.postal_code = profile_data.address.postal_code
+
+    db.commit()
+    db.refresh(current_user)
+    return {"message": "Profile updated successfully"}

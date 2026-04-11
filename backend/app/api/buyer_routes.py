@@ -125,6 +125,44 @@ def delete_vehicle(vehicle_id: int, current_user: User = Depends(require_buyer),
         db.commit()
     return {"message": "Vehicle deleted"}
 
+@router.get("/sellers/{seller_id}")
+def get_seller_profile(seller_id: int, db: Session = Depends(get_db)):
+    seller = db.query(User).filter(User.id == seller_id).first()
+    if not seller or seller.role.value != "seller":
+        raise HTTPException(status_code=404, detail="Seller not found")
+    
+    parts = db.query(Part).filter(
+        Part.seller_id == seller_id, 
+        Part.status == PartStatusEnum.APPROVED, 
+        Part.quantity > 0
+    ).all()
+    
+    address = None
+    default_address = db.query(UserAddress).filter(UserAddress.user_id == seller_id, UserAddress.is_default == True).first()
+    if default_address:
+        address = {
+            "address_line1": default_address.address_line1,
+            "address_line2": default_address.address_line2,
+            "city": default_address.city,
+            "province": default_address.province,
+            "postal_code": default_address.postal_code
+        }
+    
+    return {
+        "seller": {
+            "id": seller.id,
+            "display_name": seller.display_name or f"Seller #{seller.id}",
+            "email": seller.email,
+            "phone": seller.phone,
+            "description": seller.description,
+            "line_id": seller.line_id,
+            "facebook": seller.facebook,
+            "specialties": seller.specialties,
+            "address": address
+        },
+        "parts": [p.to_dict() for p in parts]
+    }
+
 @router.get("/search")
 def search_parts(make: str = None, model: str = None, year: int = None, db: Session = Depends(get_db)):
     query = db.query(Part).filter(Part.status == PartStatusEnum.APPROVED, Part.quantity > 0)

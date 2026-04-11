@@ -31,6 +31,10 @@ class User(Base):
     role = Column(Enum(RoleEnum), default=RoleEnum.BUYER)
     display_name = Column(String, nullable=True)
     phone = Column(String, nullable=True)
+    description = Column(String, nullable=True)
+    line_id = Column(String, nullable=True)
+    facebook = Column(String, nullable=True)
+    specialties = Column(String, nullable=True)
     
     parts = relationship("Part", back_populates="seller")
     orders = relationship("Order", back_populates="buyer")

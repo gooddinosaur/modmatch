@@ -51,6 +51,7 @@ class TokenResponse(BaseModel):
     token_type: str
     role: str
     email: str
+    id: int
 
 
 # ── Endpoints ────────────────────────────────────────────────────────────────
@@ -82,7 +83,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     db.refresh(user)
 
     token = create_access_token({"sub": str(user.id), "role": user.role.value, "email": user.email})
-    return TokenResponse(access_token=token, token_type="bearer", role=user.role.value, email=user.email)
+    return TokenResponse(access_token=token, token_type="bearer", role=user.role.value, email=user.email, id=user.id)
 
 
 @router.post("/login", response_model=TokenResponse)
@@ -95,4 +96,4 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)):
         )
 
     token = create_access_token({"sub": str(user.id), "role": user.role.value, "email": user.email})
-    return TokenResponse(access_token=token, token_type="bearer", role=user.role.value, email=user.email)
+    return TokenResponse(access_token=token, token_type="bearer", role=user.role.value, email=user.email, id=user.id)

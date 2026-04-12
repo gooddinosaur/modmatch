@@ -13,6 +13,9 @@ interface PendingListing {
   seller_name?: string;
   status: string;
   created_at: string;
+  image_url?: string;
+  category?: string;
+  brand?: string;
 }
 
 interface DisputedOrder {
@@ -40,6 +43,7 @@ export default function AdminDashboard() {
   const [activityLog, setActivityLog] = useState<PendingListing[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedListing, setSelectedListing] = useState<PendingListing | null>(null);
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
@@ -180,7 +184,17 @@ export default function AdminDashboard() {
       {tab === "review" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {pendingListings.map(l => (
-            <div key={l.id} className="card" style={{ padding: "24px" }}>
+            <div key={l.id} className="card" style={{ padding: "24px", cursor: "pointer", transition: "transform 0.2s, border-color 0.2s" }}
+                 onClick={() => setSelectedListing(l)}
+                 onMouseEnter={e => {
+                   (e.currentTarget as HTMLDivElement).style.borderColor = "var(--accent)";
+                   (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
+                 }}
+                 onMouseLeave={e => {
+                   (e.currentTarget as HTMLDivElement).style.borderColor = "var(--border)";
+                   (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+                 }}
+            >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "16px" }}>
                 <div>
                   <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "6px" }}>
@@ -201,10 +215,10 @@ export default function AdminDashboard() {
                     {l.quantity != null && <span style={{ fontSize: "11px", color: "var(--muted)", marginTop: "2px" }}>{l.quantity} in stock</span>}
                   </div>
                   <div style={{ display: "flex", gap: "10px" }}>
-                    <button className="btn-ghost" style={{ padding: "8px 20px", color: "var(--red)", borderColor: "var(--red)" }} onClick={() => handleUpdatePartStatus(l.id, "rejected")}>
+                    <button className="btn-ghost" style={{ padding: "8px 20px", color: "var(--red)", borderColor: "var(--red)" }} onClick={(e) => { e.stopPropagation(); handleUpdatePartStatus(l.id, "rejected"); }}>
                       Reject
                     </button>
-                    <button className="btn-accent" style={{ padding: "8px 20px", background: "var(--green)", color: "#000" }} onClick={() => handleUpdatePartStatus(l.id, "approved")}>
+                    <button className="btn-accent" style={{ padding: "8px 20px", background: "var(--green)", color: "#000" }} onClick={(e) => { e.stopPropagation(); handleUpdatePartStatus(l.id, "approved"); }}>
                       Approve
                     </button>
                   </div>
@@ -261,7 +275,17 @@ export default function AdminDashboard() {
       {tab === "active" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
           {activeListings.map(l => (
-            <div key={l.id} className="card" style={{ padding: "24px" }}>
+            <div key={l.id} className="card" style={{ padding: "24px", cursor: "pointer", transition: "transform 0.2s, border-color 0.2s" }}
+                 onClick={() => setSelectedListing(l)}
+                 onMouseEnter={e => {
+                   (e.currentTarget as HTMLDivElement).style.borderColor = "var(--accent)";
+                   (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
+                 }}
+                 onMouseLeave={e => {
+                   (e.currentTarget as HTMLDivElement).style.borderColor = "var(--border)";
+                   (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+                 }}
+            >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "16px" }}>
                 <div>
                   <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "6px" }}>
@@ -282,7 +306,7 @@ export default function AdminDashboard() {
                     {l.quantity != null && <span style={{ fontSize: "11px", color: "var(--muted)", marginTop: "2px" }}>{l.quantity} in stock</span>}
                   </div>
                   <div style={{ display: "flex", gap: "10px" }}>
-                    <button className="btn-ghost" style={{ padding: "8px 20px", color: "var(--red)", borderColor: "var(--red)" }} onClick={() => handleDeletePart(l.id)}>
+                    <button className="btn-ghost" style={{ padding: "8px 20px", color: "var(--red)", borderColor: "var(--red)" }} onClick={(e) => { e.stopPropagation(); handleDeletePart(l.id); }}>
                       Delete
                     </button>
                   </div>
@@ -329,6 +353,68 @@ export default function AdminDashboard() {
               )}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* Admin Modal for Listing Details */}
+      {selectedListing && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+          backgroundColor: "rgba(0,0,0,0.7)", zIndex: 1000,
+          display: "flex", justifyContent: "center", alignItems: "center", padding: "20px"
+        }} onClick={() => setSelectedListing(null)}>
+          <div className="card" style={{
+            background: "var(--background)", padding: "32px", maxWidth: "800px", width: "100%", maxHeight: "90vh", overflowY: "auto", position: "relative"
+          }} onClick={e => e.stopPropagation()}>
+            <button className="btn-ghost" style={{ position: "absolute", top: "16px", right: "16px" }} onClick={() => setSelectedListing(null)}>✕ Close</button>
+            <div style={{ display: "flex", gap: "24px", flexWrap: "wrap", marginTop: "16px" }}>
+              {selectedListing.image_url ? (
+                <div style={{ flex: "1 1 300px", minWidth: "300px" }}>
+                  {selectedListing.image_url.split(",").length > 1 ? (
+                    <div style={{ display: "grid", gap: "8px" }}>
+                      <img src={selectedListing.image_url.split(",")[0].startsWith("/") ? `http://localhost:8000${selectedListing.image_url.split(",")[0]}` : selectedListing.image_url.split(",")[0]} alt={selectedListing.name} style={{ width: "100%", height: "auto", borderRadius: "8px", objectFit: "cover" }} />
+                      <div style={{ display: "flex", gap: "8px", overflowX: "auto" }}>
+                        {selectedListing.image_url.split(",").slice(1).map((img, idx) => (
+                           <img key={idx} src={img.startsWith("/") ? `http://localhost:8000${img}` : img} alt={`${selectedListing.name}-${idx}`} style={{ width: "60px", height: "60px", borderRadius: "4px", objectFit: "cover", flexShrink: 0 }} />
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <img src={selectedListing.image_url.startsWith("/") ? `http://localhost:8000${selectedListing.image_url}` : selectedListing.image_url} alt={selectedListing.name} style={{ width: "100%", height: "auto", borderRadius: "8px", objectFit: "cover" }} />
+                  )}
+                </div>
+              ) : (
+                <div style={{ flex: "1 1 300px", minWidth: "300px", background: "var(--surface)", height: "300px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>
+                  No Image Provided
+                </div>
+              )}
+              <div style={{ flex: "2 1 300px", display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase" }}>{selectedListing.category || "Uncategorized"}</span>
+                <h2 style={{ fontSize: "28px", fontWeight: 700, margin: "8px 0" }}>{selectedListing.name}</h2>
+                <div style={{ fontSize: "24px", fontWeight: 700, color: "var(--accent)", marginBottom: "16px" }}>฿{selectedListing.price.toLocaleString()}</div>
+                <p style={{ color: "var(--text)", marginBottom: "16px", lineHeight: 1.6 }}>{selectedListing.description || "No description provided."}</p>
+                <div style={{ marginTop: "auto" }}>
+                  <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Brand: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedListing.brand || "Unknown"}</span></p>
+                  <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Seller: <span style={{ color: "var(--accent)", fontWeight: 500 }}>{selectedListing.seller_name || `Seller #${selectedListing.seller_id}`}</span></p>
+                  <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "24px" }}>Stock: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedListing.quantity}</span></p>
+                  <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "24px" }}>Submitted: <span style={{ color: "var(--text)", fontWeight: 500 }}>{new Date(selectedListing.created_at).toLocaleDateString()}</span></p>
+                  
+                  {selectedListing.status === "pending" && (
+                    <div style={{ display: "flex", gap: "10px" }}>
+                      <button className="btn-ghost" style={{ flex: 1, padding: "12px", color: "var(--red)", borderColor: "var(--red)" }} 
+                              onClick={() => { handleUpdatePartStatus(selectedListing.id, "rejected"); setSelectedListing(null); }}>
+                        Reject
+                      </button>
+                      <button className="btn-accent" style={{ flex: 1, padding: "12px", background: "var(--green)", color: "#000" }} 
+                              onClick={() => { handleUpdatePartStatus(selectedListing.id, "approved"); setSelectedListing(null); }}>
+                        Approve
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

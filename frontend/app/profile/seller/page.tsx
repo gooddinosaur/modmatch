@@ -18,6 +18,22 @@ const INITIAL: ShopProfile = {
   facebook: "", specialties: "",
 };
 
+const Field = ({ label, value, onChange, placeholder, multiline }: {
+  label: string; value: string; onChange: (val: string) => void; placeholder?: string; multiline?: boolean;
+}) => (
+  <div>
+    <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>
+      {label}
+    </label>
+    {multiline ? (
+      <textarea value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
+        style={{ background: "var(--surface2)", border: "1px solid var(--border)", color: "var(--text)", padding: "10px 14px", borderRadius: "6px", fontFamily: "DM Sans, sans-serif", fontSize: "14px", width: "100%", minHeight: "100px", resize: "vertical", outline: "none" }} />
+    ) : (
+      <input value={value} placeholder={placeholder} onChange={e => onChange(e.target.value)} />
+    )}
+  </div>
+);
+
 export default function SellerProfileEditPage() {
   const { user } = useAuth();
   const token = user?.token;
@@ -102,22 +118,6 @@ export default function SellerProfileEditPage() {
     }
   };
 
-  const Field = ({ label, value, field, placeholder, multiline }: {
-    label: string; value: string; field: keyof ShopProfile; placeholder?: string; multiline?: boolean;
-  }) => (
-    <div>
-      <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>
-        {label}
-      </label>
-      {multiline ? (
-        <textarea value={draft[field]} onChange={e => setDraft({ ...draft, [field]: e.target.value })} placeholder={placeholder}
-          style={{ background: "var(--surface2)", border: "1px solid var(--border)", color: "var(--text)", padding: "10px 14px", borderRadius: "6px", fontFamily: "DM Sans, sans-serif", fontSize: "14px", width: "100%", minHeight: "100px", resize: "vertical", outline: "none" }} />
-      ) : (
-        <input value={draft[field]} placeholder={placeholder} onChange={e => setDraft({ ...draft, [field]: e.target.value })} />
-      )}
-    </div>
-  );
-
   return (
     <div style={{ maxWidth: "900px", margin: "0 auto", padding: "48px 32px" }}>
       <div style={{ marginBottom: "40px", display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "16px" }}>
@@ -152,9 +152,9 @@ export default function SellerProfileEditPage() {
               <h2 style={{ fontSize: "15px", fontWeight: 600 }}>Shop Info</h2>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <Field label="Shop Name *" value={draft.shopName} field="shopName" placeholder="Your shop name" />
-              <Field label="Description" value={draft.description} field="description" placeholder="Tell buyers about your shop..." multiline />
-              <Field label="Specialties (comma separated)" value={draft.specialties} field="specialties" placeholder="Honda, JDM, Turbo Systems..." />
+              <Field label="Shop Name *" value={draft.shopName} onChange={v => setDraft({ ...draft, shopName: v })} placeholder="Your shop name" />
+              <Field label="Description" value={draft.description} onChange={v => setDraft({ ...draft, description: v })} placeholder="Tell buyers about your shop..." multiline />
+              <Field label="Specialties (comma separated)" value={draft.specialties} onChange={v => setDraft({ ...draft, specialties: v })} placeholder="Honda, JDM, Turbo Systems..." />
             </div>
           </div>
           <div className="card" style={{ padding: "24px" }}>
@@ -167,9 +167,9 @@ export default function SellerProfileEditPage() {
                 </div>
                 <p style={{ fontSize: "11px", color: "var(--muted)", marginTop: "4px" }}>Email cannot be changed</p>
               </div>
-              <Field label="Phone" value={draft.phone} field="phone" placeholder="08X-XXX-XXXX" />
-              <Field label="LINE ID" value={draft.lineId} field="lineId" placeholder="@yourshop" />
-              <Field label="Facebook" value={draft.facebook} field="facebook" placeholder="facebook.com/yourshop" />
+              <Field label="Phone" value={draft.phone} onChange={v => setDraft({ ...draft, phone: v })} placeholder="08X-XXX-XXXX" />
+              <Field label="LINE ID" value={draft.lineId} onChange={v => setDraft({ ...draft, lineId: v })} placeholder="@yourshop" />
+              <Field label="Facebook" value={draft.facebook} onChange={v => setDraft({ ...draft, facebook: v })} placeholder="facebook.com/yourshop" />
             </div>
           </div>
         </div>
@@ -178,13 +178,13 @@ export default function SellerProfileEditPage() {
           <div className="card" style={{ padding: "24px" }}>
             <h2 style={{ fontSize: "15px", fontWeight: 600, marginBottom: "20px" }}>Shop Address</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-              <Field label="Address Line 1" value={draft.addressLine1} field="addressLine1" placeholder="Building / Street" />
-              <Field label="Address Line 2" value={draft.addressLine2} field="addressLine2" placeholder="Subdistrict / District" />
+              <Field label="Address Line 1" value={draft.addressLine1} onChange={v => setDraft({ ...draft, addressLine1: v })} placeholder="Building / Street" />
+              <Field label="Address Line 2" value={draft.addressLine2} onChange={v => setDraft({ ...draft, addressLine2: v })} placeholder="Subdistrict / District" />
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                <Field label="City" value={draft.city} field="city" placeholder="Bangkok" />
-                <Field label="Province" value={draft.province} field="province" placeholder="Bangkok" />
+                <Field label="City" value={draft.city} onChange={v => setDraft({ ...draft, city: v })} placeholder="Bangkok" />
+                <Field label="Province" value={draft.province} onChange={v => setDraft({ ...draft, province: v })} placeholder="Bangkok" />
               </div>
-              <Field label="Postal Code" value={draft.postalCode} field="postalCode" placeholder="10110" />
+              <Field label="Postal Code" value={draft.postalCode} onChange={v => setDraft({ ...draft, postalCode: v })} placeholder="10110" />
             </div>
           </div>
           <div className="card" style={{ padding: "24px" }}>

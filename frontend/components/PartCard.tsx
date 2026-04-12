@@ -17,10 +17,11 @@ export interface Part {
   seller_name?: string;
   seller_id?: number | string;
   description?: string;
+  image_url?: string;
   seller?: string;
 }
 
-export default function PartCard({ part, hideStatus }: { readonly part: Part; readonly hideStatus?: boolean }) {
+export default function PartCard({ part, hideStatus, onClick }: { readonly part: Part; readonly hideStatus?: boolean; readonly onClick?: () => void; }) {
   const { user } = useAuth();
   const router = useRouter();
 
@@ -28,7 +29,9 @@ export default function PartCard({ part, hideStatus }: { readonly part: Part; re
     <div className="card" style={{
       padding: "20px",
       transition: "border-color 0.2s, transform 0.2s",
+      cursor: onClick ? "pointer" : "default",
     }}
+      onClick={onClick}
       onMouseEnter={e => {
         (e.currentTarget as HTMLDivElement).style.borderColor = "var(--accent)";
         (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)";
@@ -92,7 +95,7 @@ export default function PartCard({ part, hideStatus }: { readonly part: Part; re
           </span>
         </div>
         {(!user || user.role === "buyer") && (
-          <button className="btn-accent" style={{ padding: "8px 18px", fontSize: "13px" }} onClick={() => router.push(`/checkout/${part.id}`)}>
+          <button className="btn-accent" style={{ padding: "8px 18px", fontSize: "13px" }} onClick={(e) => { e.stopPropagation(); router.push(`/checkout/${part.id}`); }}>
             Buy Now
           </button>
         )}

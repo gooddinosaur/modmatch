@@ -12,7 +12,7 @@ interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, role: "buyer" | "seller", display_name?: string) => Promise<void>;
+  register: (email: string, password: string, role: "buyer" | "seller", display_name?: string, description?: string, phone?: string) => Promise<void>;
   logout: () => void;
   loading: boolean;
 }
@@ -55,11 +55,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     else router.push("/search");
   };
 
-  const register = async (email: string, password: string, role: "buyer" | "seller", display_name?: string) => {
+  const register = async (email: string, password: string, role: "buyer" | "seller", display_name?: string, description?: string, phone?: string) => {
     const res = await fetch(`${API}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, role, display_name }),
+      body: JSON.stringify({ email, password, role, display_name, description, phone }),
     });
     if (!res.ok) {
       const err = await res.json();

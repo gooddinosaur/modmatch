@@ -39,6 +39,8 @@ export default function SellerDashboard() {
   const [newQuantity, setNewQuantity] = useState("1");
   const [newBrand, setNewBrand] = useState("");
   const [newCategory, setNewCategory] = useState("");
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
@@ -102,7 +104,32 @@ export default function SellerDashboard() {
 
   const handleCreateListing = async () => {
     if (!user?.token) return;
+    if (newImages.length === 0) {
+      alert("Please provide at least one image for your item.");
+      return;
+    }
+    
+    setIsUploading(true);
     try {
+      // 1. Upload images
+      const formData = new FormData();
+      for (const file of newImages) {
+        formData.append("files", file);
+      }
+      
+      const uploadRes = await fetch(`${API}/seller/upload_images`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${user.token}` },
+        body: formData
+      });
+      
+      if (!uploadRes.ok) {
+        throw new Error("Failed to upload images.");
+      }
+      
+      const { urls } = await uploadRes.json();
+      
+      // 2. Create listing
       const res = await fetch(`${API}/seller/listings`, {
         method: "POST",
         headers: {
@@ -115,20 +142,26 @@ export default function SellerDashboard() {
           price: Number.parseFloat(newPrice) || 0,
           quantity: Number.parseInt(newQuantity) || 1,
           brand: newBrand,
-          category: newCategory
+          category: newCategory,
+          image_url: urls
         })
       });
+      
       if (res.ok) {
         setNewName("");
         setNewDesc("");
         setNewPrice("");
         setNewBrand("");
         setNewCategory("");
+        setNewImages([]);
         setTab("listings");
         fetchDashboardData();
       }
     } catch (error) {
       console.error(error);
+      alert("An error occurred during submission.");
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -251,6 +284,20 @@ export default function SellerDashboard() {
               <input value={newBrand} onChange={e => setNewBrand(e.target.value)} placeholder="e.g. K&N" />
             </div>
             <div>
+              <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Images (Max 10) *</label>
+              <input type="file" multiple accept="image/*" onChange={(e) => {
+                if (e.target.files) {
+                  const files = Array.from(e.target.files);
+                  if (files.length > 10) {
+                    alert("Maximum 10 images allowed");
+                    return;
+                  }
+                  setNewImages(files);
+                }
+              }} />
+              {newImages.length > 0 && <span style={{ fontSize: "12px", color: "var(--muted)", marginTop: "4px", display: "block" }}>{newImages.length} file(s) selected</span>}
+            </div>
+            <div>
               <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Category</label>
               <select value={newCategory} onChange={e => setNewCategory(e.target.value)}>
                 <option value="">Select category...</option>
@@ -281,8 +328,8 @@ export default function SellerDashboard() {
               <input type="number" value={newQuantity} onChange={e => setNewQuantity(e.target.value)} placeholder="e.g. 1" min="1" />
             </div>
             <div style={{ display: "flex", gap: "10px", marginTop: "16px" }}>
-              <button className="btn-accent" style={{ flex: 1 }} onClick={handleCreateListing}>Submit for Review</button>
-              <button className="btn-ghost" onClick={() => setTab("listings")}>Cancel</button>
+              <button disabled={isUploading} className="btn-accent" style={{ flex: 1 }} onClick={handleCreateListing}>{isUploading ? "Uploading..." : "Submit for Review"}</button>
+              <button disabled={isUploading} className="btn-ghost" onClick={() => setTab("listings")}>Cancel</button>
             </div>
             <p style={{ fontSize: "12px", color: "var(--muted)" }}>
               ⓘ Listings are reviewed by an admin before going live. This typically takes 1–2 business days.

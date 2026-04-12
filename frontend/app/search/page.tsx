@@ -15,6 +15,7 @@ export default function SearchPage() {
   const [parts, setParts] = useState<Part[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPart, setSelectedPart] = useState<Part | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
@@ -107,28 +108,53 @@ export default function SearchPage() {
       {selectedPart && (
         <div style={{
           position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
-          backgroundColor: "rgba(0,0,0,0.7)", zIndex: 1000,
+          backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", zIndex: 1000,
           display: "flex", justifyContent: "center", alignItems: "center", padding: "20px"
-        }} onClick={() => setSelectedPart(null)}>
+        }} onClick={() => { setSelectedPart(null); setCurrentImageIndex(0); }}>
           <div className="card" style={{
-            background: "var(--background)", padding: "32px", maxWidth: "800px", width: "100%", maxHeight: "90vh", overflowY: "auto", position: "relative"
+            background: "#000000", padding: "32px", maxWidth: "800px", width: "100%", maxHeight: "90vh", overflowY: "auto", position: "relative", border: "1px solid var(--border)"
           }} onClick={e => e.stopPropagation()}>
-            <button className="btn-ghost" style={{ position: "absolute", top: "16px", right: "16px" }} onClick={() => setSelectedPart(null)}>✕ Close</button>
+            <button className="btn-ghost" style={{ position: "absolute", top: "16px", right: "16px" }} onClick={() => { setSelectedPart(null); setCurrentImageIndex(0); }}>✕ Close</button>
             <div style={{ display: "flex", gap: "24px", flexWrap: "wrap", marginTop: "16px" }}>
               {selectedPart.image_url ? (
                 <div style={{ flex: "1 1 300px", minWidth: "300px" }}>
-                  {selectedPart.image_url.split(",").length > 1 ? (
-                    <div style={{ display: "grid", gap: "8px" }}>
-                      <img src={selectedPart.image_url.split(",")[0].startsWith("/") ? `http://localhost:8000${selectedPart.image_url.split(",")[0]}` : selectedPart.image_url.split(",")[0]} alt={selectedPart.name} style={{ width: "100%", height: "auto", borderRadius: "8px", objectFit: "cover" }} />
-                      <div style={{ display: "flex", gap: "8px", overflowX: "auto" }}>
-                        {selectedPart.image_url.split(",").slice(1).map((img, idx) => (
-                           <img key={idx} src={img.startsWith("/") ? `http://localhost:8000${img}` : img} alt={`${selectedPart.name}-${idx}`} style={{ width: "60px", height: "60px", borderRadius: "4px", objectFit: "cover", flexShrink: 0 }} />
-                        ))}
+                  {(() => {
+                    const images = selectedPart.image_url.split(",");
+                    const mainImg = currentImageIndex !== undefined && currentImageIndex < images.length ? images[currentImageIndex] : images[0];
+                    const nextImg = () => {
+                      if (currentImageIndex !== undefined) {
+                        setCurrentImageIndex((currentImageIndex + 1) % images.length);
+                      } else {
+                        setCurrentImageIndex(1 % images.length);
+                      }
+                    };
+                    const prevImg = () => {
+                      if (currentImageIndex !== undefined) {
+                        setCurrentImageIndex((currentImageIndex - 1 + images.length) % images.length);
+                      } else {
+                        setCurrentImageIndex((images.length - 1) % images.length);
+                      }
+                    };
+
+                    return images.length > 1 ? (
+                      <div style={{ display: "grid", gap: "8px" }}>
+                        <div style={{ position: "relative" }}>
+                          <button onClick={prevImg} style={{ position: "absolute", left: "8px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)", color: "white", border: "none", borderRadius: "50%", width: "32px", height: "32px", cursor: "pointer", zIndex: 10 }}>&lt;</button>
+                          <img src={mainImg.startsWith("/") ? `http://localhost:8000${mainImg}` : mainImg} alt={selectedPart.name} style={{ width: "100%", height: "auto", borderRadius: "8px", objectFit: "cover" }} />
+                          <button onClick={nextImg} style={{ position: "absolute", right: "8px", top: "50%", transform: "translateY(-50%)", background: "rgba(0,0,0,0.5)", color: "white", border: "none", borderRadius: "50%", width: "32px", height: "32px", cursor: "pointer", zIndex: 10 }}>&gt;</button>
+                        </div>
+                        <div style={{ display: "flex", gap: "8px", overflowX: "auto" }}>
+                          {images.map((img, idx) => (
+                             <img key={idx} src={img.startsWith("/") ? `http://localhost:8000${img}` : img} alt={`${selectedPart.name}-${idx}`} 
+                               onClick={() => setCurrentImageIndex(idx)}
+                               style={{ width: "60px", height: "60px", borderRadius: "4px", objectFit: "cover", flexShrink: 0, cursor: "pointer", border: (currentImageIndex || 0) === idx ? "2px solid var(--primary)" : "none" }} />
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ) : (
-                    <img src={selectedPart.image_url.startsWith("/") ? `http://localhost:8000${selectedPart.image_url}` : selectedPart.image_url} alt={selectedPart.name} style={{ width: "100%", height: "auto", borderRadius: "8px", objectFit: "cover" }} />
-                  )}
+                    ) : (
+                      <img src={mainImg.startsWith("/") ? `http://localhost:8000${mainImg}` : mainImg} alt={selectedPart.name} style={{ width: "100%", height: "auto", borderRadius: "8px", objectFit: "cover" }} />
+                    );
+                  })()}
                 </div>
               ) : (
                 <div style={{ flex: "1 1 300px", minWidth: "300px", background: "var(--surface)", height: "300px", borderRadius: "8px", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--muted)" }}>

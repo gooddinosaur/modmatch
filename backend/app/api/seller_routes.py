@@ -1,11 +1,39 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 from ..db.session import get_db
 from ..db.models import Part, PartStatusEnum, Order, OrderStatusEnum, User, UserAddress
 from ..domain.auth_permission import require_seller  # NEW
 from pydantic import BaseModel
+import shutil
+import uuid
+import os
+from typing import List
 
 router = APIRouter()
+
+@router.post("/upload_images")
+async def upload_images(files: List[UploadFile] = File(...), current_user: User = Depends(require_seller)):
+    if len(files) > 10:
+        raise HTTPException(status_code=400, detail="Maximum 10 images allowed")
+    
+    file_urls = []
+    # Create absolute path if running from deep directory, or just rel to CWD
+    os.makedirs("uploads", exist_ok=True)
+    
+    for file in files:
+        if not file.content_type.startswith("image/"):
+            raise HTTPException(status_code=400, detail="Only image files are allowed")
+            
+        file_ext = os.path.splitext(file.filename)[1]
+        unique_name = f"{uuid.uuid4().hex}{file_ext}"
+        file_path = os.path.join("uploads", unique_name)
+        
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+            
+        file_urls.append(f"/api/v1/uploads/{unique_name}")
+        
+    return {"urls": file_urls}
 
 class PartCreate(BaseModel):
     name: str
@@ -14,9 +42,17 @@ class PartCreate(BaseModel):
     quantity: int = 1
     brand: str | None = None
     category: str | None = None
+    image_url: str | List[str] | None = None
 
 @router.post("/listings")
 def create_listing(part_data: PartCreate, current_user: User = Depends(require_seller), db: Session = Depends(get_db)):
+    image_url_str = None
+    if part_data.image_url:
+        if isinstance(part_data.image_url, list):
+            image_url_str = ",".join(part_data.image_url)
+        else:
+            image_url_str = part_data.image_url
+
     new_part = Part(
         seller_id=current_user.id,
         name=part_data.name,
@@ -25,6 +61,7 @@ def create_listing(part_data: PartCreate, current_user: User = Depends(require_s
         quantity=part_data.quantity,
         brand=part_data.brand,
         category=part_data.category,
+        image_url=image_url_str,
         status=PartStatusEnum.PENDING
     )
     db.add(new_part)

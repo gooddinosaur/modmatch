@@ -1,7 +1,7 @@
 """
 Usage:
   cd backend
-  python -m scripts.create_admin --email admin@modmatch.com --password s3cur3P@ss
+  python -m scripts.create_admin --email admin1@gmail.com --password 1234
 
 This is the ONLY way to create admin accounts.
 """

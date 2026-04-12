@@ -94,6 +94,7 @@ class Part(Base):
     quantity = Column(Integer, default=1)
     brand = Column(String, nullable=True)
     category = Column(String, nullable=True)
+    image_url = Column(String, nullable=True)
     status = Column(Enum(PartStatusEnum), default=PartStatusEnum.PENDING)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 

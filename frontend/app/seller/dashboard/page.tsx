@@ -285,17 +285,54 @@ export default function SellerDashboard() {
             </div>
             <div>
               <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Images (Max 10) *</label>
-              <input type="file" multiple accept="image/*" onChange={(e) => {
-                if (e.target.files) {
-                  const files = Array.from(e.target.files);
-                  if (files.length > 10) {
-                    alert("Maximum 10 images allowed");
-                    return;
-                  }
-                  setNewImages(files);
-                }
-              }} />
-              {newImages.length > 0 && <span style={{ fontSize: "12px", color: "var(--muted)", marginTop: "4px", display: "block" }}>{newImages.length} file(s) selected</span>}
+              
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "12px", marginBottom: "12px" }}>
+                {newImages.map((file, index) => (
+                  <div key={index} style={{ position: "relative", width: "80px", height: "80px", borderRadius: "8px", overflow: "hidden", border: "1px solid var(--border)" }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={URL.createObjectURL(file)} alt={`Preview ${index}`} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    <button
+                      type="button"
+                      onClick={() => setNewImages(prev => prev.filter((_, i) => i !== index))}
+                      style={{
+                        position: "absolute", top: "4px", right: "4px", background: "rgba(0,0,0,0.6)", color: "white", 
+                        border: "none", borderRadius: "50%", width: "20px", height: "20px", display: "flex", 
+                        alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "12px", padding: 0
+                      }}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+                
+                {newImages.length < 10 && (
+                  <label style={{
+                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                    width: "80px", height: "80px", borderRadius: "8px", border: "2px dashed var(--primary)",
+                    background: "rgba(227, 26, 28, 0.05)", cursor: "pointer", color: "var(--primary)", transition: "all 0.2s"
+                  }}>
+                    <span style={{ fontSize: "24px", marginBottom: "4px" }}>+</span>
+                    <span style={{ fontSize: "10px", fontWeight: 600 }}>ADD</span>
+                    <input type="file" multiple accept="image/*" style={{ display: "none" }} onChange={(e) => {
+                      if (e.target.files) {
+                        const files = Array.from(e.target.files);
+                        setNewImages(prev => {
+                          const combined = [...prev, ...files];
+                          if (combined.length > 10) {
+                            alert("Maximum 10 images allowed");
+                            return combined.slice(0, 10);
+                          }
+                          return combined;
+                        });
+                      }
+                      // reset input to allow selecting same file again if removed
+                      e.target.value = "";
+                    }} />
+                  </label>
+                )}
+              </div>
+              
+              {newImages.length > 0 && <span style={{ fontSize: "12px", color: "var(--muted)", margin: "0", display: "block" }}>{newImages.length} of 10 image(s) selected</span>}
             </div>
             <div>
               <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Category</label>

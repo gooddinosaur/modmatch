@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import PartCard, { Part } from "@/components/PartCard";
 import { useAuth } from "@/context/AuthContext";
 
@@ -7,6 +8,7 @@ const MAKES = ["All Makes", "Honda", "Toyota", "BMW", "Mazda", "Subaru", "Nissan
 const CATEGORIES = ["All Categories", "Intake", "Exhaust", "Suspension", "Brakes", "Engine", "Chassis", "Aero"];
 
 export default function SearchPage() {
+  const router = useRouter();
   const { user } = useAuth();
   const [make, setMake] = useState("All Makes");
   const [model, setModel] = useState("");
@@ -170,7 +172,7 @@ export default function SearchPage() {
                   <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Brand: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedPart.brand || "Unknown"}</span></p>
                   <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Seller: <span style={{ color: "var(--accent)", fontWeight: 500 }}>{selectedPart.seller_name || `Seller #${selectedPart.seller_id}`}</span></p>
                   <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "24px" }}>Stock: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedPart.quantity}</span></p>
-                  <button className="btn-accent" style={{ width: "100%", padding: "12px" }} onClick={() => window.location.href = `/checkout/${selectedPart.id}`}>
+                  <button className="btn-accent" style={{ width: "100%", padding: "12px" }} onClick={() => router.push(`/checkout/${selectedPart.id}`)}>
                     Proceed to Checkout
                   </button>
                 </div>

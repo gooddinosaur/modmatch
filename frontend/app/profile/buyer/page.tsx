@@ -39,6 +39,16 @@ export default function BuyerProfilePage() {
 
   useEffect(() => {
     fetchProfileData();
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const tab = params.get("tab");
+      if (tab === "addresses" || tab === "vehicles" || tab === "orders") {
+        setActiveTab(tab as any);
+      }
+      if (params.get("action") === "add") {
+        setShowAddAddr(true);
+      }
+    }
   }, []);
 
   const fetchProfileData = async () => {

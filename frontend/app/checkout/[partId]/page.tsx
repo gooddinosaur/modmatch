@@ -9,7 +9,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const params = useParams();
   const partId = params.partId as string;
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   
   const [part, setPart] = useState<Part | null>(null);
   const [addresses, setAddresses] = useState<any[]>([]);
@@ -24,12 +24,13 @@ export default function CheckoutPage() {
   const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) {
       router.push("/login?redirect=/checkout/" + partId);
       return;
     }
     fetchData();
-  }, [user, partId]);
+  }, [user, partId, authLoading]);
 
   const fetchData = async () => {
     if (!user?.token) return;
@@ -147,7 +148,7 @@ export default function CheckoutPage() {
             {addresses.length === 0 ? (
               <div style={{ background: "var(--surface2)", padding: "20px", borderRadius: "8px", textAlign: "center" }}>
                 <p style={{ color: "var(--muted)", marginBottom: "16px", fontSize: "14px" }}>You don't have any saved addresses.</p>
-                <button className="btn-ghost" onClick={() => router.push("/profile/buyer")}>Go to Profile to Add Address</button>
+                <button className="btn-ghost" onClick={() => router.push("/profile/buyer?tab=addresses&action=add")}>Go to Profile to Add Address</button>
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>

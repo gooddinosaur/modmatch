@@ -67,7 +67,7 @@ body {
 }
 .btn-ghost:hover { border-color: var(--muted); }
 
-input, select {
+input:not([type="radio"]):not([type="checkbox"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([type="reset"]), select {
   background: var(--surface2);
   border: 1px solid var(--border);
   color: var(--text);
@@ -81,6 +81,12 @@ input, select {
 }
 input:focus, select:focus { border-color: var(--accent); }
 input::placeholder { color: var(--muted); }
+
+input[type="radio"], input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: auto;
+  cursor: pointer;
+}
 
 /* Hide Native Password Reveal Buttons */
 input::-ms-reveal,

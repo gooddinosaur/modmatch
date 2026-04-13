@@ -198,22 +198,38 @@ export default function SearchPage() {
                     Guaranteed to fit your {selectedPart.fit_vehicles.join(", ")}
                   </div>
                 )}
-                <p style={{ color: "var(--text)", marginBottom: "16px", lineHeight: 1.6 }}>{selectedPart.description || "No description provided."}</p>
-                <div style={{ marginTop: "auto" }}>
-                  <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Brand: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedPart.brand || "Unknown"}</span></p>
-                  <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>
-                    Seller: <span 
-                      style={{ color: "var(--accent)", fontWeight: 500, cursor: "pointer", textDecoration: "underline" }}
-                      onClick={() => router.push(`/seller/${selectedPart.seller_id}`)}
-                    >
-                      {selectedPart.seller_name || `Seller #${selectedPart.seller_id}`}
-                    </span>
-                  </p>
-                  <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "24px" }}>Stock: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedPart.quantity}</span></p>
-                  <button className="btn-accent" style={{ width: "100%", padding: "12px" }} onClick={() => router.push(`/checkout/${selectedPart.id}`)}>
-                    Proceed to Checkout
-                  </button>
-                </div>
+                {(() => {
+                  let descText = selectedPart.description || "No description provided.";
+                  let fitmentText = "";
+                  if (descText.includes("Compatible Vehicles:")) {
+                    const parts = descText.split("Compatible Vehicles:");
+                    descText = parts[0].trim();
+                    fitmentText = parts[1].trim();
+                  }
+                  return (
+                    <>
+                      <p style={{ color: "var(--text)", marginBottom: "16px", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{descText}</p>
+                      <div style={{ marginTop: "auto" }}>
+                        {fitmentText && (
+                          <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Compatible Vehicles: <span style={{ color: "var(--text)", fontWeight: 500 }}>{fitmentText}</span></p>
+                        )}
+                        <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Brand: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedPart.brand || "Unknown"}</span></p>
+                        <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>
+                          Seller: <span 
+                            style={{ color: "var(--accent)", fontWeight: 500, cursor: "pointer", textDecoration: "underline" }}
+                            onClick={() => router.push(`/seller/${selectedPart.seller_id}`)}
+                          >
+                            {selectedPart.seller_name || `Seller #${selectedPart.seller_id}`}
+                          </span>
+                        </p>
+                        <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "24px" }}>Stock: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedPart.quantity}</span></p>
+                        <button className="btn-accent" style={{ width: "100%", padding: "12px" }} onClick={() => router.push(`/checkout/${selectedPart.id}`)}>
+                          Proceed to Checkout
+                        </button>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
             {/* Reviews Section */}

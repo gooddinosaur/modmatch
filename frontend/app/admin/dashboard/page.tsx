@@ -463,28 +463,45 @@ export default function AdminDashboard() {
                 <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase" }}>{selectedListing.category || "Uncategorized"}</span>
                 <h2 style={{ fontSize: "28px", fontWeight: 700, margin: "8px 0" }}>{selectedListing.name}</h2>
                 <div style={{ fontSize: "24px", fontWeight: 700, color: "var(--accent)", marginBottom: "16px" }}>฿{selectedListing.price.toLocaleString()}</div>
-                <p style={{ color: "var(--text)", marginBottom: "16px", lineHeight: 1.6 }}>{selectedListing.description || "No description provided."}</p>
-                <div style={{ marginTop: "auto" }}>
-                  <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Brand: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedListing.brand || "Unknown"}</span></p>
-                  <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Seller: <span style={{ color: "var(--accent)", fontWeight: 500 }}>{selectedListing.seller_name || `Seller #${selectedListing.seller_id}`}</span></p>
-                  <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "24px" }}>Stock: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedListing.quantity}</span></p>
-                  <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "24px" }}>Submitted: <span style={{ color: "var(--text)", fontWeight: 500 }}>{new Date(selectedListing.created_at).toLocaleDateString()}</span></p>
-                  
-                  {selectedListing.status === "pending" && (
-                    <div style={{ display: "flex", gap: "10px" }}>
-                      <button className="btn-ghost" style={{ flex: 1, padding: "12px", color: "var(--red)", borderColor: "var(--red)" }} 
-                               onClick={() => { handleUpdatePartStatus(selectedListing.id, "rejected"); setSelectedListing(null); setCurrentImageIndex(0); }}>
-                        Reject
-                      </button>
-                      <button className="btn-accent" style={{ flex: 1, padding: "12px", background: "var(--green)", color: "#000" }} 
-                              onClick={() => { handleUpdatePartStatus(selectedListing.id, "approved"); setSelectedListing(null); setCurrentImageIndex(0); }}>
-                        Approve
-                      </button>
-                    </div>
-                  )}
+                {(() => {
+                  let descText = selectedListing.description || "No description provided.";
+                  let fitmentText = "";
+                  if (descText.includes("Compatible Vehicles:")) {
+                    const parts = descText.split("Compatible Vehicles:");
+                    descText = parts[0].trim();
+                    fitmentText = parts[1].trim();
+                  }
+
+                  return (
+                    <>
+                      <p style={{ color: "var(--text)", marginBottom: "16px", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{descText}</p>
+                      <div style={{ marginTop: "auto" }}>
+                        {fitmentText && (
+                          <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Compatible Vehicles: <span style={{ color: "var(--text)", fontWeight: 500 }}>{fitmentText}</span></p>
+                        )}
+                        <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Brand: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedListing.brand || "Unknown"}</span></p>
+                        <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Seller: <span style={{ color: "var(--accent)", fontWeight: 500 }}>{selectedListing.seller_name || `Seller #${selectedListing.seller_id}`}</span></p>
+                        <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "24px" }}>Stock: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedListing.quantity}</span></p>
+                        <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "24px" }}>Submitted: <span style={{ color: "var(--text)", fontWeight: 500 }}>{new Date(selectedListing.created_at).toLocaleDateString()}</span></p>
+                        
+                        {selectedListing.status === "pending" && (
+                          <div style={{ display: "flex", gap: "10px" }}>
+                            <button className="btn-ghost" style={{ flex: 1, padding: "12px", color: "var(--red)", borderColor: "var(--red)" }} 
+                                     onClick={() => { handleUpdatePartStatus(selectedListing.id, "rejected"); setSelectedListing(null); setCurrentImageIndex(0); }}>
+                              Reject
+                            </button>
+                            <button className="btn-accent" style={{ flex: 1, padding: "12px", background: "var(--green)", color: "#000" }} 
+                                    onClick={() => { handleUpdatePartStatus(selectedListing.id, "approved"); setSelectedListing(null); setCurrentImageIndex(0); }}>
+                              Approve
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  );
+                })()}
                 </div>
               </div>
-            </div>
           </div>
         </div>
       )}

@@ -13,7 +13,7 @@ interface Listing {
   ordersCount?: number;
 }
 
-interface OrderItem {
+  interface OrderItem {
   id: string | number;
   partName: string;
   buyerId: string | number;
@@ -22,7 +22,10 @@ interface OrderItem {
   status: "payment_held" | "shipped" | "confirmed" | "funds_released" | "refunded" | "reported";
   date: string;
   part_id?: string | number;
+  part_image?: string;
 }
+
+import { Package } from "lucide-react";
 
 export default function SellerDashboard() {
   const { user } = useAuth();
@@ -70,13 +73,14 @@ export default function SellerDashboard() {
         // Format Orders
         const formattedOrders: OrderItem[] = ordData.map((o: any) => ({
           id: o.id,
-          partName: o.part_name || o.part?.name || `Part #${o.part_id}`,
+          partName: o.part?.name || `Part #${o.part_id}`,
           buyerId: o.buyer_id, // We'd ideally fetch buyer name, use ID for now
-          buyerName: o.buyer_name || o.buyer?.display_name || `Buyer #${o.buyer_id}`,
+          buyerName: o.buyer?.display_name || o.buyer?.email || `Buyer #${o.buyer_id}`,
           amount_paid: o.amount_paid,
           status: o.status,
           date: new Date(o.created_at).toLocaleDateString(),
-          part_id: o.part_id
+          part_id: o.part_id,
+          part_image: o.part?.image_url
         }));
 
         // Calculate orders count per listing
@@ -258,7 +262,22 @@ export default function SellerDashboard() {
               {orders.map((o, i) => (
                 <tr key={o.id} style={{ borderBottom: i < orders.length - 1 ? "1px solid var(--border)" : "none" }}>
                   <td style={{ padding: "16px 20px", fontFamily: "monospace", fontSize: "13px", color: "var(--muted)" }}>{o.id}</td>
-                  <td style={{ padding: "16px 20px", fontWeight: 500 }}>{o.partName}</td>
+                  <td style={{ padding: "16px 20px", fontWeight: 500 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <div style={{ width: "40px", height: "40px", borderRadius: "6px", overflow: "hidden", background: "var(--surface2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        {o.part_image ? (
+                          <img 
+                            src={o.part_image.split(",")[0].startsWith("/") ? `http://localhost:8000${o.part_image.split(",")[0]}` : o.part_image.split(",")[0]} 
+                            alt={o.partName} 
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                          />
+                        ) : (
+                          <Package size={16} color="var(--muted)" />
+                        )}
+                      </div>
+                      <span>{o.partName}</span>
+                    </div>
+                  </td>
                   <td style={{ padding: "16px 20px", color: "var(--muted)", fontSize: "13px" }}>{o.buyerName}</td>
                   <td style={{ padding: "16px 20px", fontWeight: 600, color: "var(--accent)" }}>฿{o.amount_paid.toLocaleString()}</td>
                   <td style={{ padding: "16px 20px", color: "var(--muted)", fontSize: "13px" }}>{o.date}</td>

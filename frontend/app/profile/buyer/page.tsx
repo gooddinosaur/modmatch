@@ -493,11 +493,21 @@ export default function BuyerProfilePage() {
                     <StatusBadge status={order.status.toLowerCase()} />
                   </div>
                   <div style={{ padding: "16px", display: "flex", gap: "16px", alignItems: "center" }}>
-                    <div style={{ width: "80px", height: "80px", backgroundColor: "var(--background)", borderRadius: "8px", flexShrink: 0 }}></div>
+                    <div style={{ width: "80px", height: "80px", backgroundColor: "var(--surface2)", borderRadius: "8px", flexShrink: 0, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      {order.part && order.part.image_url ? (
+                        <img 
+                          src={order.part.image_url.split(",")[0].startsWith("/") ? `http://localhost:8000${order.part.image_url.split(",")[0]}` : order.part.image_url.split(",")[0]} 
+                          alt={order.part.name} 
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                        />
+                      ) : (
+                        <Package size={24} color="var(--muted)" />
+                      )}
+                    </div>
                     <div style={{ flex: 1 }}>
                         <h4 style={{ fontWeight: 600, marginBottom: "4px" }}>{order.part?.name || "Order #" + order.id}</h4>
                         <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "8px" }}>Seller: {order.seller_name}</p>
-                        <div style={{ fontWeight: 700 }}>${(order.amount_paid || 0).toFixed(2)}</div>
+                        <div style={{ fontWeight: 700, color: "var(--accent)" }}>฿{(order.amount_paid || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                     </div>
                     {["shipped", "payment_held", "held"].includes(order.status.toLowerCase()) && (
                       <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", flexShrink: 0 }}>

@@ -49,7 +49,12 @@ export default function BuyerProfilePage() {
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    fetchProfileData();
+    if (user?.token) {
+      fetchProfileData();
+    }
+  }, [user?.token]);
+
+  useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
       const tab = params.get("tab");

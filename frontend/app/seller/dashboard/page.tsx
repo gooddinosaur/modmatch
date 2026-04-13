@@ -19,6 +19,7 @@ interface Listing {
   buyerId: string | number;
   buyerName?: string;
   amount_paid: number;
+  quantity: number;
   status: "payment_held" | "shipped" | "confirmed" | "funds_released" | "refunded" | "reported";
   date: string;
   part_id?: string | number;
@@ -75,14 +76,15 @@ export default function SellerDashboard() {
         // Format Orders
         const formattedOrders: OrderItem[] = ordData.map((o: any) => ({
           id: o.id,
-          partName: o.part?.name || `Part #${o.part_id}`,
+          partName: o.part_name || `Part #${o.part_id}`,
           buyerId: o.buyer_id, // We'd ideally fetch buyer name, use ID for now
-          buyerName: o.buyer?.display_name || o.buyer?.email || `Buyer #${o.buyer_id}`,
+          buyerName: o.buyer_name || `Buyer #${o.buyer_id}`,
           amount_paid: o.amount_paid,
+          quantity: o.quantity || 1,
           status: o.status,
           date: new Date(o.created_at).toLocaleDateString(),
           part_id: o.part_id,
-          part_image: o.part?.image_url
+          part_image: o.part_image
         }));
 
         // Calculate orders count per listing
@@ -277,7 +279,7 @@ export default function SellerDashboard() {
                           <Package size={16} color="var(--muted)" />
                         )}
                       </div>
-                      <span>{o.partName}</span>
+                      <span>{o.partName} x {o.quantity}</span>
                     </div>
                   </td>
                   <td style={{ padding: "16px 20px", color: "var(--muted)", fontSize: "13px" }}>{o.buyerName}</td>

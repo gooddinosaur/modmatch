@@ -15,6 +15,7 @@ export default function CheckoutPage() {
   const [addresses, setAddresses] = useState<any[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<number | string>("");
   const [paymentMethod, setPaymentMethod] = useState("credit_card");
+  const [quantity, setQuantity] = useState(1);
   
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
@@ -81,7 +82,7 @@ export default function CheckoutPage() {
           "Authorization": `Bearer ${user?.token}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ part_id: part.id, amount: part.price })
+        body: JSON.stringify({ part_id: part.id, amount: part.price * quantity, quantity })
       });
 
       if (res.ok) {
@@ -240,7 +241,22 @@ export default function CheckoutPage() {
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px", alignItems: "flex-start", gap: "16px" }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: "14px", marginBottom: "4px" }}>{part?.name}</div>
-                <div style={{ fontSize: "12px", color: "var(--muted)" }}>L-{part?.id}</div>
+                <div style={{ fontSize: "12px", color: "var(--muted)", marginBottom: "12px" }}>L-{part?.id}</div>
+                
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <span style={{ fontSize: "12px", color: "var(--muted)", textTransform: "uppercase", fontWeight: 700 }}>Quantity</span>
+                  <div style={{ display: "flex", alignItems: "center", border: "1px solid var(--border)", borderRadius: "4px", overflow: "hidden" }}>
+                    <button 
+                      style={{ padding: "4px 10px", background: "var(--surface2)", border: "none", color: "var(--text)", cursor: "pointer", borderRight: "1px solid var(--border)" }}
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    >-</button>
+                    <div style={{ padding: "4px 12px", fontSize: "13px", fontWeight: 600 }}>{quantity}</div>
+                    <button 
+                      style={{ padding: "4px 10px", background: "var(--surface2)", border: "none", color: "var(--text)", cursor: "pointer", borderLeft: "1px solid var(--border)" }}
+                      onClick={() => setQuantity(Math.min(part?.quantity || 1, quantity + 1))}
+                    >+</button>
+                  </div>
+                </div>
               </div>
               <div style={{ fontWeight: 700 }}>฿{part?.price.toLocaleString()}</div>
             </div>
@@ -257,7 +273,7 @@ export default function CheckoutPage() {
 
             <div style={{ display: "flex", justifyContent: "space-between", marginTop: "24px", paddingTop: "16px", borderTop: "1px solid var(--border)", fontSize: "18px" }}>
               <span style={{ fontWeight: 600 }}>Total</span>
-              <span style={{ fontWeight: 700, color: "var(--accent)" }}>฿{part?.price.toLocaleString()}</span>
+              <span style={{ fontWeight: 700, color: "var(--accent)" }}>฿{((part?.price || 0) * quantity).toLocaleString()}</span>
             </div>
 
             <button 

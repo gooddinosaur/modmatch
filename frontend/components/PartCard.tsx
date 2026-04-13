@@ -42,6 +42,16 @@ export default function PartCard({ part, hideStatus, onClick }: { readonly part:
       }}
     >
       {/* Category tag */}
+      {part.image_url && (
+        <div style={{ margin: "-20px -20px 20px -20px", display: "flex", justifyContent: "center", alignItems: "center", background: "var(--surface)", height: "200px", overflow: "hidden", borderRadius: "12px 12px 0 0" }}>
+          <img 
+            src={part.image_url.split(",")[0].startsWith("http") ? part.image_url.split(",")[0] : `http://localhost:8000${part.image_url.split(",")[0].startsWith("/") ? "" : "/"}${part.image_url.split(",")[0]}`} 
+            alt={part.name} 
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }} 
+            onError={(e) => { (e.target as HTMLImageElement).src = "/placeholder.jpg"; }} 
+          />
+        </div>
+      )}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "12px" }}>
         <span style={{
           fontSize: "11px",

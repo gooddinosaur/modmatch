@@ -17,6 +17,16 @@ interface Vehicle {
 
 const MAKES = ["Honda", "Toyota", "Mazda", "Subaru", "Nissan", "Mitsubishi", "BMW", "Mercedes-Benz", "Audi", "Ford", "Chevrolet", "Other"];
 
+interface Order {
+  id: number;
+  status: "pending" | "approved" | "rejected" | "shipped" | "confirmed" | "held" | "reported" | "payment_held";
+  amount_paid: number;
+  quantity: number;
+  created_at: string;
+  seller_name: string;
+  part?: { name: string, image_url: string };
+}
+
 export default function BuyerProfilePage() {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<"profile" | "addresses" | "vehicles" | "orders">("profile");
@@ -35,7 +45,7 @@ export default function BuyerProfilePage() {
   const [showAddVehicle, setShowAddVehicle] = useState(false);
   const [newVehicle, setNewVehicle] = useState<Omit<Vehicle, "id">>({ make: "", model: "", year: "", subModel: "" });
 
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     fetchProfileData();
@@ -518,7 +528,7 @@ export default function BuyerProfilePage() {
                        <div style={{ fontSize: "14px", fontWeight: 600 }}>Order #{order.id}</div>
                        <div style={{ fontSize: "12px", color: "var(--muted)" }}>Placed on {new Date(order.created_at).toLocaleDateString()}</div>
                     </div>
-                    <StatusBadge status={order.status.toLowerCase()} />
+                    <StatusBadge status={order.status.toLowerCase() as any} />
                   </div>
                   <div style={{ padding: "16px", display: "flex", gap: "16px", alignItems: "center" }}>
                     <div style={{ width: "80px", height: "80px", backgroundColor: "var(--surface2)", borderRadius: "8px", flexShrink: 0, overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -534,7 +544,7 @@ export default function BuyerProfilePage() {
                     </div>
                     <div style={{ flex: 1 }}>
                         <h4 style={{ fontWeight: 600, marginBottom: "4px" }}>{order.part?.name || "Order #" + order.id}</h4>
-                        <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "8px" }}>Seller: {order.seller_name}</p>
+                        <p style={{ fontSize: "14px", color: "var(--muted)", marginBottom: "8px" }}>Seller: {order.seller_name} - Qty: {order.quantity}</p>
                         <div style={{ fontWeight: 700, color: "var(--accent)" }}>฿{(order.amount_paid || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                     </div>
                     {["shipped", "payment_held", "held"].includes(order.status.toLowerCase()) && (

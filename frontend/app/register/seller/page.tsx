@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { Wrench, ArrowRight, ArrowLeft, Store, CheckCircle } from "lucide-react";
+import { Wrench, ArrowRight, ArrowLeft, Store, CheckCircle, Eye, EyeOff } from "lucide-react";
 
 type Step = "account" | "shop";
 
@@ -19,6 +19,8 @@ export default function SellerRegisterPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -109,12 +111,22 @@ export default function SellerRegisterPage() {
               </div>
               <div>
                 <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Password</label>
-                <input type="password" placeholder="Min. 8 characters" value={password} onChange={e => setPassword(e.target.value)} />
+                <div style={{ position: "relative" }}>
+                  <input type={showPassword ? "text" : "password"} placeholder="Min. 8 characters" value={password} onChange={e => setPassword(e.target.value)} style={{ paddingRight: "40px" }} />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text)", cursor: "pointer", display: "flex", alignItems: "center" }} title={showPassword ? "Hide password" : "Show password"}>
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
               <div>
                 <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Confirm Password</label>
-                <input type="password" placeholder="••••••••" value={confirm} onChange={e => setConfirm(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && handleAccountSubmit()} />
+                <div style={{ position: "relative" }}>
+                  <input type={showConfirmPassword ? "text" : "password"} placeholder="••••••••" value={confirm} onChange={e => setConfirm(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && handleAccountSubmit()} style={{ paddingRight: "40px" }} />
+                  <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text)", cursor: "pointer", display: "flex", alignItems: "center" }} title={showConfirmPassword ? "Hide password" : "Show password"}>
+                    {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
               </div>
               {error && (
                 <div style={{ background: "rgba(255,61,61,0.1)", border: "1px solid rgba(255,61,61,0.3)", borderRadius: "6px", padding: "10px 14px", color: "var(--red)", fontSize: "13px" }}>

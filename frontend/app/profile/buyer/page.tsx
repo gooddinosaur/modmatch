@@ -29,7 +29,7 @@ interface Order {
 
 export default function BuyerProfilePage() {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<"profile" | "addresses" | "vehicles" | "orders">("profile");
+  const [activeTab, setActiveTab] = useState<"addresses" | "vehicles" | "orders">("addresses");
   const [editingProfile, setEditingProfile] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [phone, setPhone] = useState("");
@@ -237,6 +237,7 @@ export default function BuyerProfilePage() {
     "Item arrived damaged",
     "Item differs from description",
     "Sent wrong item",
+    "Parts not fit the car",
     "Other"
   ];
 
@@ -281,7 +282,6 @@ export default function BuyerProfilePage() {
       {/* Tabs */}
       <div style={{ display: "flex", gap: "4px", marginBottom: "28px", borderBottom: "1px solid var(--border)" }}>
         {([
-          { key: "profile", label: "Account", icon: <User size={14} /> },
           { key: "addresses", label: `Addresses (${addresses.length})`, icon: <MapPin size={14} /> },
           { key: "vehicles", label: `My Cars (${vehicles.length})`, icon: <Car size={14} /> },
         ] as const).map(t => (
@@ -307,48 +307,6 @@ export default function BuyerProfilePage() {
             <Package size={14} /> Orders
           </button>
       </div>
-
-      {/* Profile Tab */}
-      {activeTab === "profile" && (
-        <div className="card" style={{ padding: "32px", maxWidth: "480px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "24px" }}>
-            <h2 style={{ fontSize: "17px", fontWeight: 600 }}>Account Details</h2>
-            <button className="btn-ghost" style={{ padding: "6px 14px", display: "flex", alignItems: "center", gap: "6px", fontSize: "13px" }}
-              onClick={() => setEditingProfile(!editingProfile)}>
-              {editingProfile ? <><X size={13} /> Cancel</> : <><Edit3 size={13} /> Edit</>}
-            </button>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            <div>
-              <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Email</label>
-              <div style={{ padding: "10px 14px", background: "var(--surface2)", borderRadius: "6px", fontSize: "14px", color: "var(--muted)", border: "1px solid var(--border)" }}>
-                {user?.email}
-              </div>
-              <p style={{ fontSize: "11px", color: "var(--muted)", marginTop: "4px" }}>Email cannot be changed</p>
-            </div>
-            <div>
-              <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Display Name</label>
-              {editingProfile
-                ? <input value={displayName} onChange={e => setDisplayName(e.target.value)} />
-                : <div style={{ padding: "10px 14px", background: "var(--surface2)", borderRadius: "6px", fontSize: "14px", border: "1px solid var(--border)" }}>{displayName}</div>
-              }
-            </div>
-            <div>
-              <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Phone</label>
-              {editingProfile
-                ? <input value={phone} onChange={e => setPhone(e.target.value)} />
-                : <div style={{ padding: "10px 14px", background: "var(--surface2)", borderRadius: "6px", fontSize: "14px", border: "1px solid var(--border)", color: "var(--muted)" }}>Not provided</div>
-              }
-            </div>
-            {editingProfile && (
-              <button className="btn-accent" style={{ padding: "12px", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
-                onClick={() => saveProfile()}>
-                <Save size={15} /> Save Changes
-              </button>
-            )}
-          </div>
-        </div>
-      )}
 
       {/* Addresses Tab */}
       {activeTab === "addresses" && (

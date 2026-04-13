@@ -1,8 +1,10 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from ..db.session import get_db
-from ..db.models import Part, Order, PartStatusEnum, OrderStatusEnum, User, UserAddress, UserVehicle
-from ..domain.auth_permission import require_buyer  # NEW
+from ..db.models import Part, Order, PartStatusEnum, OrderStatusEnum, User, UserAddress, UserVehicle, Review
+from ..domain.auth_permission import require_buyer, get_current_user_optional
+from ..domain.fitment_engine import check_basic_fitment
 from pydantic import BaseModel
 from typing import Optional, List
 
@@ -90,13 +92,16 @@ def get_vehicles(current_user: User = Depends(require_buyer), db: Session = Depe
 @router.get("/orders")
 def get_buyer_orders(current_user: User = Depends(require_buyer), db: Session = Depends(get_db)):
     orders = db.query(Order).filter(Order.buyer_id == current_user.id).order_by(Order.created_at.desc()).all()
+    
+    reviewed_part_ids = {r.part_id for r in db.query(Review.part_id).filter(Review.buyer_id == current_user.id).all()}
+    
     # Serialize to include part details directly
     result = []
     for o in orders:
         seller_name = "Unknown Seller"
         if o.part and o.part.seller:
-            seller_name = o.part.seller.display_name or o.part.seller.email
-        
+            seller_name = o.part.seller.display_name or o.part.seller.email 
+
         result.append({
             "id": o.id,
             "status": o.status,
@@ -104,7 +109,8 @@ def get_buyer_orders(current_user: User = Depends(require_buyer), db: Session = 
             "quantity": o.quantity,
             "created_at": o.created_at,
             "part": o.part,
-            "seller_name": seller_name
+            "seller_name": seller_name,
+            "is_reviewed": getattr(o, "part_id", 0) in reviewed_part_ids or (o.part.id in reviewed_part_ids if o.part else False)
         })
     return result
 
@@ -166,16 +172,107 @@ def get_seller_profile(seller_id: int, db: Session = Depends(get_db)):
     }
 
 @router.get("/search")
-def search_parts(make: str = None, model: str = None, year: int = None, db: Session = Depends(get_db)):
+def search_parts(make: str = None, model: str = None, year: int = None, authorization: str | None = Header(default=None), db: Session = Depends(get_db)):
+    user = get_current_user_optional(authorization, db=db)
+    user_vehicles = []
+    if user and user.role.value == "buyer":
+        user_vehicles = db.query(UserVehicle).filter(UserVehicle.user_id == user.id).all()
+        
     query = db.query(Part).filter(Part.status == PartStatusEnum.APPROVED, Part.quantity > 0)
-    return [p.to_dict() for p in query.all()]
+    parts = query.all()
+    
+    results = []
+    for p in parts:
+        p_dict = p.to_dict()
+        
+        # Calculate rating
+        reviews = db.query(Review).filter(Review.part_id == p.id).all()
+        if reviews:
+            p_dict["rating"] = round(sum([r.rating for r in reviews]) / len(reviews), 1)
+            p_dict["reviews_count"] = len(reviews)
+        else:
+            p_dict["rating"] = None
+            p_dict["reviews_count"] = 0
+            
+        # Check fitment
+        if user_vehicles:
+            p_dict["fit_vehicles"] = check_basic_fitment(p.name, p.description, user_vehicles)
+        else:
+            p_dict["fit_vehicles"] = []
+            
+        results.append(p_dict)
+        
+    return results
 
 @router.get("/parts/{part_id}")
-def get_part_details(part_id: int, db: Session = Depends(get_db)):
+def get_part_details(part_id: int, authorization: str | None = Header(default=None), db: Session = Depends(get_db)):
     part = db.query(Part).filter(Part.id == part_id, Part.status == PartStatusEnum.APPROVED, Part.quantity > 0).first()
     if not part:
         raise HTTPException(status_code=404, detail="Part not found")
-    return part.to_dict()
+        
+    p_dict = part.to_dict()
+    user = get_current_user_optional(authorization, db=db)
+    if user and user.role.value == "buyer":
+        user_vehicles = db.query(UserVehicle).filter(UserVehicle.user_id == user.id).all()
+        p_dict["fit_vehicles"] = check_basic_fitment(part.name, part.description, user_vehicles)
+    else:
+        p_dict["fit_vehicles"] = []
+        
+    # Get reviews
+    reviews = db.query(Review).filter(Review.part_id == part.id).order_by(Review.created_at.desc()).all()
+    p_dict["reviews"] = []
+    for r in reviews:
+        buyer_name = r.buyer.display_name or r.buyer.email if r.buyer else "Unknown Buyer"
+        p_dict["reviews"].append({
+            "id": r.id,
+            "rating": r.rating,
+            "comment": r.comment,
+            "created_at": r.created_at,
+            "buyer_name": buyer_name
+        })
+        
+    if reviews:
+        p_dict["rating"] = round(sum([r.rating for r in reviews]) / len(reviews), 1)
+        p_dict["reviews_count"] = len(reviews)
+    else:
+        p_dict["rating"] = None
+        p_dict["reviews_count"] = 0
+        
+    return p_dict
+
+class ReviewCreate(BaseModel):
+    rating: int  # 1 to 5
+    comment: str | None = None
+
+@router.post("/parts/{part_id}/reviews")
+def add_review(part_id: int, review_data: ReviewCreate, current_user: User = Depends(require_buyer), db: Session = Depends(get_db)):
+    # Check if previously bought and confirmed
+    order = db.query(Order).filter(
+        Order.part_id == part_id,
+        Order.buyer_id == current_user.id,
+        Order.status.in_([OrderStatusEnum.CONFIRMED, OrderStatusEnum.FUNDS_RELEASED])
+    ).first()
+    
+    if not order:
+        raise HTTPException(status_code=400, detail="You can only review parts you have purchased and confirmed")
+        
+    existing = db.query(Review).filter(Review.part_id == part_id, Review.buyer_id == current_user.id).first()
+    if existing:
+        raise HTTPException(status_code=400, detail="You have already reviewed this part")
+        
+    if review_data.rating < 1 or review_data.rating > 5:
+        raise HTTPException(status_code=400, detail="Rating must be between 1 and 5")
+        
+    new_review = Review(
+        part_id=part_id,
+        buyer_id=current_user.id,
+        rating=review_data.rating,
+        comment=review_data.comment
+    )
+    db.add(new_review)
+    db.commit()
+    db.refresh(new_review)
+    return {"message": "Review added successfully", "review_id": new_review.id}
 
 @router.post("/buy")
 def buy_part(order_data: OrderCreate, current_user: User = Depends(require_buyer), db: Session = Depends(get_db)):

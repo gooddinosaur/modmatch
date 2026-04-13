@@ -142,3 +142,16 @@ class Order(Base):
 
     buyer = relationship("User", back_populates="orders")
     part = relationship("Part", back_populates="orders")
+
+class Review(Base):
+    __tablename__ = "reviews"
+
+    id = Column(Integer, primary_key=True, index=True)
+    part_id = Column(Integer, ForeignKey("parts.id"), nullable=False)
+    buyer_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    rating = Column(Integer, nullable=False)
+    comment = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    part = relationship("Part")
+    buyer = relationship("User")

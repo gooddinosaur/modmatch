@@ -31,6 +31,22 @@ def get_current_user(
     return user
 
 
+def get_current_user_optional(
+    authorization: str = None,
+    db: Session = Depends(get_db),
+) -> User | None:
+    if not authorization or not authorization.startswith("Bearer "):
+        return None
+    token = authorization.split(" ")[1]
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if user_id:
+            return db.query(User).filter(User.id == int(user_id)).first()
+    except JWTError:
+        pass
+    return None
+
 def require_role(*roles: RoleEnum):
     """Factory that returns a dependency enforcing one of the given roles."""
     def _check(current_user: User = Depends(get_current_user)):

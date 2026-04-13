@@ -66,7 +66,6 @@ export default function CheckoutPage() {
   const handleCheckout = async () => {
     if (!selectedAddress) {
       setError("Please add or select a shipping address.");
-      alert("Please add or select a shipping address before proceeding.");
       window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }

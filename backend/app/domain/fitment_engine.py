@@ -59,6 +59,13 @@ def check_basic_fitment(part_name: str, part_desc: str, user_vehicles: list):
                             if next_word not in sub_models:
                                 conflict = True
                                 break
+                                
+                        # If the next word is a specific year (e.g. 2008) and it doesn't match the user's vehicle year
+                        # And the user's year is not mentioned anywhere else in the text
+                        if next_word.isdigit() and len(next_word) == 4 and (next_word.startswith('19') or next_word.startswith('20')):
+                            if v.year and str(v.year) not in text_words:
+                                conflict = True
+                                break
             
             if not conflict:
                 fitted_vehicles.append(f"{v.year} {v.make} {v.model}".strip())
@@ -70,3 +77,4 @@ def check_basic_fitment(part_name: str, part_desc: str, user_vehicles: list):
             unique_matches.append(f)
             
     return unique_matches
+

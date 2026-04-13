@@ -40,8 +40,31 @@ def delete_part(part_id: int, _: User = Depends(require_admin), db: Session = De
 
 @router.get("/parts/log")
 def read_parts_log(_: User = Depends(require_admin), db: Session = Depends(get_db)):
-    parts = db.query(Part).filter(Part.status.in_([PartStatusEnum.APPROVED, PartStatusEnum.REJECTED])).order_by(Part.id.desc()).all()
-    return [p.to_dict() for p in parts]
+    parts = db.query(Part).filter(Part.status.in_([PartStatusEnum.APPROVED, PartStatusEnum.REJECTED])).order_by(Part.id.desc()).limit(50).all()
+    orders = db.query(Order).filter(Order.status.in_([OrderStatusEnum.REFUNDED, OrderStatusEnum.FUNDS_RELEASED])).order_by(Order.id.desc()).limit(50).all()
+    
+    log = []
+    for p in parts:
+        log.append({
+            "type": "part",
+            "id": p.id,
+            "name": p.name,
+            "status": p.status,
+            "created_at": p.created_at
+        })
+    for o in orders:
+        part_name = o.part.name if o.part else f"Part #{o.part_id}"
+        log.append({
+            "type": "order",
+            "id": o.id,
+            "name": part_name,
+            "status": o.status,
+            "created_at": o.created_at
+        })
+    
+    # Sort by created_at descending (assuming updated ones have newer created_at or we just sort them to mix)
+    log.sort(key=lambda x: x["created_at"], reverse=True)
+    return log
 
 @router.get("/parts/pending")
 def read_pending_parts(_: User = Depends(require_admin), db: Session = Depends(get_db)):

@@ -45,7 +45,7 @@ export default function AdminDashboard() {
   const [pendingListings, setPendingListings] = useState<PendingListing[]>([]);
   const [disputedOrders, setDisputedOrders] = useState<DisputedOrder[]>([]);
   const [activeListings, setActiveListings] = useState<PendingListing[]>([]);
-  const [activityLog, setActivityLog] = useState<PendingListing[]>([]);
+  const [activityLog, setActivityLog] = useState<any[]>([]);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedListing, setSelectedListing] = useState<PendingListing | null>(null);
@@ -346,18 +346,20 @@ export default function AdminDashboard() {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                {["Listing ID", "Part Name", "Action", "Date"].map(h => (
+                {["Reference ID", "Item / Part Name", "Action", "Date"].map(h => (
                   <th key={h} style={{ padding: "14px 20px", textAlign: "left", fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px" }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {activityLog.map((r, i) => (
-                <tr key={r.id} style={{ borderBottom: i < activityLog.length - 1 ? "1px solid var(--border)" : "none" }}>
-                  <td style={{ padding: "16px 20px", fontFamily: "monospace", fontSize: "13px", color: "var(--muted)" }}>L-{r.id}</td>
+                <tr key={`${r.type}-${r.id}`} style={{ borderBottom: i < activityLog.length - 1 ? "1px solid var(--border)" : "none" }}>
+                  <td style={{ padding: "16px 20px", fontFamily: "monospace", fontSize: "13px", color: "var(--muted)" }}>
+                    {r.type === "order" ? `ORD-${r.id}` : `L-${r.id}`}
+                  </td>
                   <td style={{ padding: "16px 20px", fontWeight: 500 }}>{r.name}</td>
                   <td style={{ padding: "16px 20px" }}>
-                    <StatusBadge status={r.status as "approved" | "rejected" | "pending"} />
+                    <StatusBadge status={r.status} />
                   </td>
                   <td style={{ padding: "16px 20px", color: "var(--muted)", fontSize: "13px" }}>
                     {new Date(r.created_at).toLocaleDateString()}

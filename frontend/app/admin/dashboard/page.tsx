@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { CheckCircle2, PartyPopper } from "lucide-react";
+import { CheckCircle2, PartyPopper, Package } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import StatusBadge from "@/components/StatusBadge";
 
@@ -202,18 +202,31 @@ export default function AdminDashboard() {
                  }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "16px" }}>
-                <div>
-                  <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "6px" }}>
-                    <span style={{ fontFamily: "monospace", fontSize: "12px", color: "var(--muted)" }}>L-{l.id}</span>
-                    <StatusBadge status="pending" />
+                <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+                  <div style={{ width: "64px", height: "64px", borderRadius: "8px", overflow: "hidden", background: "var(--surface2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    {l.image_url ? (
+                      <img 
+                        src={l.image_url.split(",")[0].startsWith("/") ? `http://localhost:8000${l.image_url.split(",")[0]}` : l.image_url.split(",")[0]} 
+                        alt={l.name} 
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                      />
+                    ) : (
+                      <Package size={24} color="var(--muted)" />
+                    )}
                   </div>
-                  <h3 style={{ fontSize: "17px", fontWeight: 600, marginBottom: "4px" }}>{l.name}</h3>
-                  <p style={{ color: "var(--muted)", fontSize: "13px" }}>
-                    by {l.seller_name || `Seller #${l.seller_id}`}
-                  </p>
-                  <p style={{ color: "var(--muted)", fontSize: "13px", marginTop: "6px", maxWidth: "600px" }}>
-                    {l.description || "No description provided"} · Submitted: {new Date(l.created_at).toLocaleDateString()}
-                  </p>
+                  <div>
+                    <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "6px" }}>
+                      <span style={{ fontFamily: "monospace", fontSize: "12px", color: "var(--muted)" }}>L-{l.id}</span>
+                      <StatusBadge status="pending" />
+                    </div>
+                    <h3 style={{ fontSize: "17px", fontWeight: 600, marginBottom: "4px" }}>{l.name}</h3>
+                    <p style={{ color: "var(--muted)", fontSize: "13px" }}>
+                      by {l.seller_name || `Seller #${l.seller_id}`}
+                    </p>
+                    <p style={{ color: "var(--muted)", fontSize: "13px", marginTop: "6px", maxWidth: "600px" }}>
+                      {l.description || "No description provided"} · Submitted: {new Date(l.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px" }}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
@@ -305,18 +318,31 @@ export default function AdminDashboard() {
                  }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "16px" }}>
-                <div>
-                  <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "6px" }}>
-                    <span style={{ fontFamily: "monospace", fontSize: "12px", color: "var(--muted)" }}>L-{l.id}</span>
-                    <StatusBadge status="approved" />
+                <div style={{ display: "flex", gap: "16px", alignItems: "flex-start" }}>
+                  <div style={{ width: "64px", height: "64px", borderRadius: "8px", overflow: "hidden", background: "var(--surface2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    {l.image_url ? (
+                      <img 
+                        src={l.image_url.split(",")[0].startsWith("/") ? `http://localhost:8000${l.image_url.split(",")[0]}` : l.image_url.split(",")[0]} 
+                        alt={l.name} 
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                      />
+                    ) : (
+                      <Package size={24} color="var(--muted)" />
+                    )}
                   </div>
-                  <h3 style={{ fontSize: "17px", fontWeight: 600, marginBottom: "4px" }}>{l.name}</h3>
-                  <p style={{ color: "var(--muted)", fontSize: "13px" }}>
-                    by {l.seller_name || `Seller #${l.seller_id}`}
-                  </p>
-                  <p style={{ color: "var(--muted)", fontSize: "13px", marginTop: "6px", maxWidth: "600px" }}>
-                    {l.description || "No description provided"} · Listed on: {new Date(l.created_at).toLocaleDateString()}
-                  </p>
+                  <div>
+                    <div style={{ display: "flex", gap: "10px", alignItems: "center", marginBottom: "6px" }}>
+                      <span style={{ fontFamily: "monospace", fontSize: "12px", color: "var(--muted)" }}>L-{l.id}</span>
+                      <StatusBadge status="approved" />
+                    </div>
+                    <h3 style={{ fontSize: "17px", fontWeight: 600, marginBottom: "4px" }}>{l.name}</h3>
+                    <p style={{ color: "var(--muted)", fontSize: "13px" }}>
+                      by {l.seller_name || `Seller #${l.seller_id}`}
+                    </p>
+                    <p style={{ color: "var(--muted)", fontSize: "13px", marginTop: "6px", maxWidth: "600px" }}>
+                      {l.description || "No description provided"} · Listed on: {new Date(l.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px" }}>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>

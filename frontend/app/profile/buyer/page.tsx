@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { User, MapPin, Car, Edit3, Save, X, Plus, Trash2, Package } from "lucide-react";
+import { User, MapPin, Car, Edit3, Save, X, Plus, Trash2, Package, CheckCircle2 } from "lucide-react";
 import StatusBadge from "@/components/StatusBadge";
 
 interface Address {
@@ -19,12 +19,13 @@ const MAKES = ["Honda", "Toyota", "Mazda", "Subaru", "Nissan", "Mitsubishi", "BM
 
 interface Order {
   id: number;
-  status: "pending" | "approved" | "rejected" | "shipped" | "confirmed" | "held" | "reported" | "payment_held";
+  status: "pending" | "approved" | "rejected" | "shipped" | "confirmed" | "held" | "reported" | "payment_held" | "completed" | "funds_released";
   amount_paid: number;
   quantity: number;
   created_at: string;
   seller_name: string;
-  part?: { name: string, image_url: string };
+  is_reviewed?: boolean;
+  part?: { id: number; name: string, image_url: string };
 }
 
 export default function BuyerProfilePage() {
@@ -270,8 +271,66 @@ export default function BuyerProfilePage() {
     }
   };
 
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [selectedReviewPartId, setSelectedReviewPartId] = useState<string | number | null>(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [toast, setToast] = useState<{message: string, type: "success" | "error"} | null>(null);
+
+  const showToast = (message: string, type: "success" | "error") => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const handleOpenReview = (partId: string | number) => {
+    setSelectedReviewPartId(partId);
+    setReviewRating(5);
+    setReviewComment("");
+    setShowReviewModal(true);
+  };
+
+  const submitReview = async () => {
+    if (!selectedReviewPartId) return;
+    try {
+      const token = user?.token;
+      if (!token) return;
+      const res = await fetch(`http://localhost:8000/api/v1/buyer/parts/${selectedReviewPartId}/reviews`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ rating: reviewRating, comment: reviewComment })
+      });
+      if (res.ok) {
+        setShowReviewModal(false);
+        showToast("Review submitted successfully", "success");
+        fetchProfileData();
+      } else {
+        const d = await res.json();
+        showToast(d.detail || "Error submitting review", "error");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
-    <div style={{ maxWidth: "900px", margin: "0 auto", padding: "48px 32px" }}>
+    <div style={{ maxWidth: "900px", margin: "0 auto", padding: "48px 32px", position: "relative" }}>
+      {toast && (
+        <div style={{
+          position: "fixed",
+          top: "32px",
+          right: "32px",
+          background: toast.type === "success" ? "var(--green)" : "var(--red)",
+          color: "#000",
+          padding: "12px 24px",
+          borderRadius: "8px",
+          fontWeight: 600,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.5)",
+          zIndex: 9999,
+          animation: "slideIn 0.3s ease-out"
+        }}>
+          {toast.message}
+        </div>
+      )}
       <div style={{ marginBottom: "40px" }}>
         <h1 className="display-font" style={{ fontSize: "48px", letterSpacing: "2px" }}>
           MY <span style={{ color: "var(--accent)" }}>PROFILE</span>
@@ -515,11 +574,69 @@ export default function BuyerProfilePage() {
                         </button>
                       </div>
                     )}
+                    {["confirmed", "funds_released"].includes(order.status.toLowerCase()) && order.part && (
+                      <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", flexShrink: 0 }}>
+                        {order.is_reviewed ? (
+                          <div style={{ display: "flex", alignItems: "center", padding: "8px 16px", color: "var(--muted)", fontSize: "13px", fontWeight: 600 }}>
+                            <CheckCircle2 size={14} style={{ marginRight: "6px" }} />
+                            Reviewed
+                          </div>
+                        ) : (
+                          <button className="btn-ghost" style={{ padding: "8px 16px", color: "var(--accent)", borderColor: "var(--accent)", fontSize: "13px" }} onClick={() => handleOpenReview(order.part?.id || 0)}>
+                            Leave a Review
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
           )}
+        </div>
+      )}
+      {/* Review Modal */}
+      {showReviewModal && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
+          <div className="card" style={{ background: "#000", padding: "32px", width: "100%", maxWidth: "500px", border: "1px solid var(--border)" }}>
+            <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "16px", color: "var(--accent)" }}>Review Part</h2>
+            <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "24px" }}>
+              How was your experience with this part?
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div>
+                <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Rating</label>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setReviewRating(star)}
+                      style={{
+                        background: "none", border: "none", cursor: "pointer",
+                        color: star <= reviewRating ? "#fbbf24" : "var(--muted)",
+                        fontSize: "24px", padding: 0
+                      }}
+                    >
+                      ★
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Comment (optional)</label>
+                <textarea 
+                  value={reviewComment} 
+                  onChange={e => setReviewComment(e.target.value)} 
+                  placeholder="Share your thoughts on the quality and fitment..."
+                  style={{ background: "var(--surface2)", border: "1px solid var(--border)", color: "var(--text)", padding: "10px 14px", borderRadius: "6px", fontFamily: "DM Sans, sans-serif", fontSize: "14px", width: "100%", minHeight: "120px", resize: "vertical", outline: "none" }}
+                />
+              </div>
+              <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
+                <button className="btn-ghost" style={{ flex: 1 }} onClick={() => setShowReviewModal(false)}>Cancel</button>
+                <button className="btn-accent" style={{ flex: 1 }} onClick={submitReview}>Submit Review</button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
       {/* Dispute Modal */}

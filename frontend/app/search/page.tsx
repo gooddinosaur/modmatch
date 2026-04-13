@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, Star, CheckCircle2 } from "lucide-react";
 import PartCard, { Part } from "@/components/PartCard";
 import { useAuth } from "@/context/AuthContext";
 
@@ -34,7 +34,15 @@ export default function SearchPage() {
       if (model) params.append("model", model);
       if (year) params.append("year", year);
       
-      const res = await fetch(`${API}/buyer/search?${params.toString()}`);
+      const token = localStorage.getItem("token");
+      const headers: any = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const res = await fetch(`${API}/buyer/search?${params.toString()}`, {
+        headers
+      });
       if (res.ok) {
         const data = await res.json();
         setParts(data);
@@ -168,6 +176,21 @@ export default function SearchPage() {
                 <span style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase" }}>{selectedPart.category || "Uncategorized"}</span>
                 <h2 style={{ fontSize: "28px", fontWeight: 700, margin: "8px 0" }}>{selectedPart.name}</h2>
                 <div style={{ fontSize: "24px", fontWeight: 700, color: "var(--accent)", marginBottom: "16px" }}>฿{selectedPart.price.toLocaleString()}</div>
+                <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px", color: "var(--muted)", fontSize: "14px" }}>        
+                   <span style={{ color: (selectedPart.rating ?? 0) > 0 ? "#fbbf24" : "var(--muted)", display: "flex", alignItems: "center" }}>
+                     <Star size={16} fill="currentColor" strokeWidth={(selectedPart.rating ?? 0) > 0 ? 0 : 1} />
+                   </span>
+                   <span style={{ fontWeight: 600, color: (selectedPart.rating ?? 0) > 0 ? "var(--text)" : "var(--muted)" }}>
+                     {(selectedPart.rating ?? 0).toFixed(1)}
+                   </span>
+                   <span>({selectedPart.reviews_count || 0} {(selectedPart.reviews_count === 1) ? "Review" : "Reviews"})</span>    
+                </div>
+                {selectedPart.fit_vehicles && selectedPart.fit_vehicles.length > 0 && (
+                  <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(16, 185, 129, 0.1)", color: "#10b981", padding: "6px 12px", borderRadius: "100px", fontSize: "13px", fontWeight: 600, marginBottom: "16px", alignSelf: "flex-start" }}>
+                    <CheckCircle2 size={16} />
+                    Guaranteed to fit your {selectedPart.fit_vehicles.join(", ")}
+                  </div>
+                )}
                 <p style={{ color: "var(--text)", marginBottom: "16px", lineHeight: 1.6 }}>{selectedPart.description || "No description provided."}</p>
                 <div style={{ marginTop: "auto" }}>
                   <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Brand: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedPart.brand || "Unknown"}</span></p>

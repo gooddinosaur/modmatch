@@ -4,6 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import StatusBadge from "./StatusBadge";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { Star, CheckCircle2 } from "lucide-react";
 
 export interface Part {
   id: string | number;
@@ -12,6 +13,9 @@ export interface Part {
   price: number;
   quantity?: number;
   fitment?: string[];
+  fit_vehicles?: string[];
+  rating?: number | null;
+  reviews_count?: number;
   status: "pending" | "approved" | "rejected" | "shipped" | "confirmed" | "held";
   category?: string;
   seller_name?: string;
@@ -67,10 +71,22 @@ export default function PartCard({ part, hideStatus, onClick }: { readonly part:
 
       {/* Part name */}
       <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "4px" }}>{part.name}</h3>
+      <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "8px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "4px", color: (part.rating ?? 0) > 0 ? "#fbbf24" : "var(--muted)" }}>
+          <Star size={14} fill="currentColor" strokeWidth={(part.rating ?? 0) > 0 ? 0 : 1} />
+          <span style={{ fontSize: "13px", fontWeight: 600, color: (part.rating ?? 0) > 0 ? "inherit" : "var(--muted)" }}>
+            {(part.rating ?? 0).toFixed(1)}
+          </span>
+          <span style={{ fontSize: "12px", color: "var(--muted)" }}>
+            ({part.reviews_count || 0} {(part.reviews_count === 1) ? "Review" : "Reviews"})
+          </span>
+        </div>
+      </div>
       <p style={{ color: "var(--muted)", fontSize: "13px", marginBottom: "12px" }}>
         {part.brand ? `by ${part.brand}` : "Unknown Brand"} -{" "}
         <Link href={`/seller/${part.seller_id}`} passHref>
           <span style={{ color: "var(--accent)", cursor: "pointer", textDecoration: "none" }}
+            onClick={(e) => e.stopPropagation()}
             onMouseEnter={e => e.currentTarget.style.textDecoration = "underline"}
             onMouseLeave={e => e.currentTarget.style.textDecoration = "none"}>
             {part.seller_name || `Seller #${part.seller_id}`}
@@ -78,7 +94,19 @@ export default function PartCard({ part, hideStatus, onClick }: { readonly part:
         </Link>
       </p>
 
-      {/* Fitment */}
+      {/* Fitment matches */}
+      {part.fit_vehicles && part.fit_vehicles.length > 0 && (
+        <div style={{
+          display: "flex", alignItems: "center", gap: "6px", marginBottom: "16px",
+          background: "rgba(0, 255, 136, 0.1)", border: "1px solid rgba(0, 255, 136, 0.3)",
+          color: "var(--green)", padding: "6px 10px", borderRadius: "6px", fontSize: "12px", fontWeight: 600
+        }}>
+          <CheckCircle2 size={14} />
+          <span>Fits your {part.fit_vehicles.join(", ")}</span>
+        </div>
+      )}
+
+      {/* Legacy Fitment */}
       <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "16px" }}>
         {part.fitment?.map(f => (
           <span key={f} style={{

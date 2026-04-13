@@ -11,6 +11,7 @@ interface Listing {
   quantity: number;
   status: "pending" | "approved" | "rejected";
   ordersCount?: number;
+  image_url?: string;
 }
 
   interface OrderItem {
@@ -100,7 +101,8 @@ export default function SellerDashboard() {
           price: l.price,
           quantity: l.quantity,
           status: l.status,
-          ordersCount: matchingOrders.length
+          ordersCount: matchingOrders.length,
+          image_url: l.image_url
         };
       });
 
@@ -241,7 +243,22 @@ export default function SellerDashboard() {
             <tbody>
               {listings.map((l, i) => (
                 <tr key={l.id} style={{ borderBottom: i < listings.length - 1 ? "1px solid var(--border)" : "none" }}>
-                  <td style={{ padding: "16px 20px", fontWeight: 500 }}>{l.name}</td>
+                  <td style={{ padding: "16px 20px", fontWeight: 500 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                      <div style={{ width: "40px", height: "40px", borderRadius: "6px", overflow: "hidden", background: "var(--surface2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        {l.image_url ? (
+                          <img 
+                            src={l.image_url.split(",")[0].startsWith("/") ? `http://localhost:8000${l.image_url.split(",")[0]}` : l.image_url.split(",")[0]} 
+                            alt={l.name} 
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                          />
+                        ) : (
+                          <Package size={16} color="var(--muted)" />
+                        )}
+                      </div>
+                      <span>{l.name}</span>
+                    </div>
+                  </td>
                   <td style={{ padding: "16px 20px", color: "var(--muted)", fontSize: "13px", maxWidth: "200px", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{l.description || "-"}</td>
                   <td style={{ padding: "16px 20px", fontWeight: 600, color: "var(--accent)" }}>฿{l.price.toLocaleString()}</td>
                   <td style={{ padding: "16px 20px" }}>{l.quantity}</td>

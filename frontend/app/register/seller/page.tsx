@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { Wrench, ArrowRight, ArrowLeft, Store, CheckCircle, Eye, EyeOff, AlertTriangle } from "lucide-react";
@@ -15,6 +16,7 @@ interface ShopData {
 
 export default function SellerRegisterPage() {
   const { register } = useAuth();
+  const router = useRouter();
   const [step, setStep] = useState<Step>("account");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,8 +46,31 @@ export default function SellerRegisterPage() {
     if (!shop.shopName) { setError("Shop name is required."); return; }
     setLoading(true);
     try {
-      await register(email, password, "seller", shop.shopName, shop.description, shop.phone);
-      // TODO: save shop data to API
+      const authUser = await register(email, password, "seller", shop.shopName, shop.description, shop.phone);
+      
+      const payload = {
+        line_id: shop.lineId || null,
+        facebook: shop.facebook || null,
+        address: {
+          address_line1: shop.addressLine1 || null,
+          address_line2: shop.addressLine2 || null,
+          city: shop.city || null,
+          province: shop.province || null,
+          postal_code: shop.postalCode || null
+        }
+      };
+
+      const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+      await fetch(`${API}/seller/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${authUser?.token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      router.push("/seller/dashboard");
     } catch (e: any) {
       setError(e.message);
     } finally {

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
 import PartCard, { Part } from "@/components/PartCard";
 import { useAuth } from "@/context/AuthContext";
 
@@ -100,8 +101,8 @@ export default function SearchPage() {
         {filtered.map(p => <PartCard key={p.id} part={p} hideStatus onClick={() => setSelectedPart(p)} />)}
       </div>
       {filtered.length === 0 && (
-        <div style={{ textAlign: "center", padding: "80px", color: "var(--muted)" }}>
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>🔍</div>
+        <div style={{ textAlign: "center", padding: "80px", color: "var(--muted)", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <Search size={48} color="var(--muted)" style={{ marginBottom: "16px" }} />
           <p>No parts found for your search. Try adjusting the filters.</p>
         </div>
       )}

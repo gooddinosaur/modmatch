@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Phone, Mail, Package } from "lucide-react";
+import { Phone, Mail, Package, MapPin } from "lucide-react";
 import PartCard, { Part } from "@/components/PartCard";
 import { useAuth } from "@/context/AuthContext";
 
@@ -14,6 +14,13 @@ interface SellerProfile {
   line_id: string | null;
   facebook: string | null;
   specialties: string | null;
+  address?: {
+    address_line1: string | null;
+    address_line2: string | null;
+    city: string | null;
+    province: string | null;
+    postal_code: string | null;
+  } | null;
 }
 
 export default function SellerProfilePage() {
@@ -127,6 +134,16 @@ export default function SellerProfilePage() {
               <a href={seller.facebook.startsWith('http') ? seller.facebook : `https://facebook.com/${seller.facebook}`} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>
                 {seller.facebook.replace(/https?:\/\/(www\.)?facebook\.com\//, '')}
               </a>
+            </div>
+          )}
+          {seller.address && (seller.address.city || seller.address.province || seller.address.address_line1) && (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px" }}>
+              <span style={{ color: "var(--accent)", display: "flex", alignItems: "center" }}><MapPin size={16} /></span>
+              <span>
+                {[seller.address.address_line1, seller.address.address_line2, seller.address.city, seller.address.province, seller.address.postal_code]
+                  .filter(Boolean)
+                  .join(", ")}
+              </span>
             </div>
           )}
         </div>

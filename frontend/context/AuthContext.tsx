@@ -12,7 +12,7 @@ interface AuthUser {
 interface AuthContextType {
   user: AuthUser | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, role: "buyer" | "seller", display_name?: string, description?: string, phone?: string) => Promise<void>;
+  register: (email: string, password: string, role: "buyer" | "seller", display_name?: string, description?: string, phone?: string) => Promise<AuthUser>;
   logout: () => void;
   loading: boolean;
 }
@@ -70,8 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(authUser);
     localStorage.setItem("modmatch_user", JSON.stringify(authUser));
 
-    if (data.role === "seller") router.push("/seller/dashboard");
-    else router.push("/search");
+    return authUser;
   };
 
   const logout = () => {

@@ -23,6 +23,8 @@ interface Listing {
   date: string;
   part_id?: string | number;
   part_image?: string;
+  dispute_reason?: string;
+  dispute_message?: string;
 }
 
 import { Package } from "lucide-react";

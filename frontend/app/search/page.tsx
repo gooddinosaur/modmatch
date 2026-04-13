@@ -24,7 +24,7 @@ export default function SearchPage() {
 
   useEffect(() => {
     fetchParts();
-  }, []);
+  }, [user?.token]);
 
   const fetchParts = async () => {
     try {
@@ -34,7 +34,14 @@ export default function SearchPage() {
       if (model) params.append("model", model);
       if (year) params.append("year", year);
       
-      const token = localStorage.getItem("token");
+      let token = user?.token;
+      if (!token) {
+        const stored = localStorage.getItem("modmatch_user");
+        if (stored) {
+          try { token = JSON.parse(stored).token; } catch (e) {}
+        }
+      }
+
       const headers: any = {};
       if (token) {
         headers["Authorization"] = `Bearer ${token}`;

@@ -42,6 +42,7 @@ export default function SellerDashboard() {
   // New Listing Form State
   const [newName, setNewName] = useState("");
   const [newDesc, setNewDesc] = useState("");
+  const [newFitment, setNewFitment] = useState("");
   const [newPrice, setNewPrice] = useState("");
   const [newQuantity, setNewQuantity] = useState("1");
   const [newBrand, setNewBrand] = useState("");
@@ -151,7 +152,7 @@ export default function SellerDashboard() {
         },
         body: JSON.stringify({
           name: newName,
-          description: newDesc,
+          description: newDesc + (newFitment ? `\n\nCompatible Vehicles:\n${newFitment}` : ""),
           price: Number.parseFloat(newPrice) || 0,
           quantity: Number.parseInt(newQuantity) || 1,
           brand: newBrand,
@@ -417,11 +418,18 @@ export default function SellerDashboard() {
             </div>
             <div>
               <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Description & Details</label>
-              <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="Brand, Category, Fits Honda Civic 2018–2020..." style={{
+              <textarea value={newDesc} onChange={e => setNewDesc(e.target.value)} placeholder="Condition, Specs..." style={{  
                 background: "var(--surface2)", border: "1px solid var(--border)", color: "var(--text)",
                 padding: "10px 14px", borderRadius: "6px", fontFamily: "DM Sans, sans-serif",
                 fontSize: "14px", width: "100%", minHeight: "100px", resize: "vertical", outline: "none",
               }} />
+            </div>
+            <div>
+              <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Compatible Vehicles (Filters)</label>
+              <input type="text" value={newFitment} onChange={e => setNewFitment(e.target.value)} placeholder="e.g. Honda Civic FD, Toyota GR86 (comma separated)" />
+              <p style={{ fontSize: "12px", color: "var(--muted)", marginTop: "6px", lineHeight: 1.4 }}>
+                Enter the car models this part fits to help buyers find it easily. By providing car models here (like "Civic" or "GR86"), the system automatically tags and highlights your part for buyers driving those cars.
+              </p>
             </div>
             <div>
               <label style={{ fontSize: "12px", fontWeight: 600, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Price (฿)</label>

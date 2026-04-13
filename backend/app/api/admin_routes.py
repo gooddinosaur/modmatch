@@ -60,7 +60,24 @@ def update_part_status(part_id: int, status_update: PartStatusUpdate, _: User = 
 
 @router.get("/orders/reported")
 def read_reported_orders(_: User = Depends(require_admin), db: Session = Depends(get_db)):
-    return db.query(Order).filter(Order.status == OrderStatusEnum.REPORTED).all()
+    orders = db.query(Order).filter(Order.status == OrderStatusEnum.REPORTED).all()
+    result = []
+    for o in orders:
+        buyer_name = o.buyer.display_name or o.buyer.email if o.buyer else f"User #{o.buyer_id}"
+        part_name = o.part.name if o.part else f"Part #{o.part_id}"
+        result.append({
+            "id": o.id,
+            "status": o.status,
+            "amount_paid": o.amount_paid,
+            "created_at": o.created_at,
+            "buyer_id": o.buyer_id,
+            "buyer_name": buyer_name,
+            "part_id": o.part_id,
+            "part_name": part_name,
+            "dispute_reason": o.dispute_reason,
+            "dispute_message": o.dispute_message
+        })
+    return result
 
 @router.put("/orders/{order_id}/resolve")
 def resolve_order(order_id: int, resolve_action: str, _: User = Depends(require_admin), db: Session = Depends(get_db)):

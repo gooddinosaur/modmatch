@@ -210,12 +210,18 @@ def confirm_order(order_id: int, current_user: User = Depends(require_buyer), db
         "order": {"id": order.id, "status": order.status}
     }
 
+class ReportOrderData(BaseModel):
+    reason: str
+    message: str
+
 @router.put("/orders/{order_id}/report")
-def report_order(order_id: int, current_user: User = Depends(require_buyer), db: Session = Depends(get_db)):
+def report_order(order_id: int, report_data: ReportOrderData, current_user: User = Depends(require_buyer), db: Session = Depends(get_db)):
     order = db.query(Order).filter(Order.id == order_id, Order.buyer_id == current_user.id).first()
     if not order:
         raise HTTPException(status_code=404, detail="Order not found")
     order.status = OrderStatusEnum.REPORTED
+    order.dispute_reason = report_data.reason
+    order.dispute_message = report_data.message
     db.commit()
     return {
         "message": "Order reported. Admin will mediate.", 

@@ -134,6 +134,8 @@ class Order(Base):
     part_id = Column(Integer, ForeignKey("parts.id"))
     status = Column(Enum(OrderStatusEnum), default=OrderStatusEnum.PAYMENT_HELD)
     amount_paid = Column(Float, nullable=False)
+    dispute_reason = Column(String, nullable=True)
+    dispute_message = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 

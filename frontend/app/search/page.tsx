@@ -171,7 +171,14 @@ export default function SearchPage() {
                 <p style={{ color: "var(--text)", marginBottom: "16px", lineHeight: 1.6 }}>{selectedPart.description || "No description provided."}</p>
                 <div style={{ marginTop: "auto" }}>
                   <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Brand: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedPart.brand || "Unknown"}</span></p>
-                  <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>Seller: <span style={{ color: "var(--accent)", fontWeight: 500 }}>{selectedPart.seller_name || `Seller #${selectedPart.seller_id}`}</span></p>
+                  <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "16px" }}>
+                    Seller: <span 
+                      style={{ color: "var(--accent)", fontWeight: 500, cursor: "pointer", textDecoration: "underline" }}
+                      onClick={() => router.push(`/seller/${selectedPart.seller_id}`)}
+                    >
+                      {selectedPart.seller_name || `Seller #${selectedPart.seller_id}`}
+                    </span>
+                  </p>
                   <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "24px" }}>Stock: <span style={{ color: "var(--text)", fontWeight: 500 }}>{selectedPart.quantity}</span></p>
                   <button className="btn-accent" style={{ width: "100%", padding: "12px" }} onClick={() => router.push(`/checkout/${selectedPart.id}`)}>
                     Proceed to Checkout

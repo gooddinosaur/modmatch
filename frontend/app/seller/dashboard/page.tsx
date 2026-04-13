@@ -47,6 +47,7 @@ export default function SellerDashboard() {
   const [newCategory, setNewCategory] = useState("");
   const [newImages, setNewImages] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedDispute, setSelectedDispute] = useState<OrderItem | null>(null);
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
@@ -84,7 +85,9 @@ export default function SellerDashboard() {
           status: o.status,
           date: new Date(o.created_at).toLocaleDateString(),
           part_id: o.part_id,
-          part_image: o.part_image
+          part_image: o.part_image,
+          dispute_reason: o.dispute_reason,
+          dispute_message: o.dispute_message
         }));
 
         // Calculate orders count per listing
@@ -286,16 +289,27 @@ export default function SellerDashboard() {
                   <td style={{ padding: "16px 20px", fontWeight: 600, color: "var(--accent)" }}>฿{o.amount_paid.toLocaleString()}</td>
                   <td style={{ padding: "16px 20px", color: "var(--muted)", fontSize: "13px" }}>{o.date}</td>
                   <td style={{ padding: "16px 20px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                      <StatusBadge status={o.status} />
-                      {o.status === "reported" && o.dispute_reason && (
-                         <button 
-                           className="btn-ghost" 
-                           style={{ padding: "4px 8px", fontSize: "11px", borderRadius: "100px", color: "var(--red)", borderColor: "rgba(255,61,61,0.3)" }}
-                           onClick={() => alert(`Dispute Reason: ${o.dispute_reason}\n\nDetails: ${o.dispute_message || "No additional details"}`)}
-                         >
-                           View Details
-                         </button>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems: "flex-start" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <StatusBadge status={o.status} />
+                        {o.status === "reported" && o.dispute_reason && (
+                           <button 
+                             className="btn-ghost" 
+                             style={{ padding: "4px 8px", fontSize: "11px", borderRadius: "100px", color: "var(--red)", borderColor: "rgba(255,61,61,0.3)" }}
+                             onClick={() => setSelectedDispute(selectedDispute?.id === o.id ? null : o)}
+                           >
+                             {selectedDispute?.id === o.id ? "Hide Details" : "View Details"}
+                           </button>
+                        )}
+                      </div>
+                      
+                      {selectedDispute?.id === o.id && (
+                        <div style={{ marginTop: "4px", background: "rgba(255,61,61,0.05)", padding: "12px", borderRadius: "8px", border: "1px solid rgba(255,61,61,0.2)", width: "100%", minWidth: "200px" }}>
+                          <p style={{ fontSize: "12px", fontWeight: 600, color: "var(--red)", marginBottom: "4px" }}>Reason: {o.dispute_reason}</p>
+                          {o.dispute_message && (
+                            <p style={{ fontSize: "12px", color: "var(--muted)", whiteSpace: "pre-wrap", marginTop: "4px" }}>{o.dispute_message}</p>
+                          )}
+                        </div>
                       )}
                     </div>
                   </td>

@@ -210,7 +210,7 @@ export default function BuyerRegisterPage() {
               <h2 style={{ fontSize: "16px", fontWeight: 600 }}>Shipping Address</h2>
             </div>
             <p style={{ fontSize: "12px", color: "var(--muted)", marginBottom: "24px" }}>
-              Optional — you can skip and add this later before purchasing.
+              Optional - you can skip and add this later before purchasing.
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
@@ -277,7 +277,7 @@ export default function BuyerRegisterPage() {
               <h2 style={{ fontSize: "16px", fontWeight: 600 }}>Your Vehicle</h2>
             </div>
             <p style={{ fontSize: "12px", color: "var(--muted)", marginBottom: "24px" }}>
-              Optional — add your car now for smarter part recommendations, or skip and add later.
+              Optional - add your car now for smarter part recommendations, or skip and add later.
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
               <div>
@@ -326,9 +326,9 @@ export default function BuyerRegisterPage() {
           </div>
         )}
 
-        <p style={{ textAlign: "center", marginTop: "20px", fontSize: "13px", color: "var(--muted)" }}>
-          Selling parts instead?{" "}
-          <Link href="/register/seller" style={{ color: "var(--accent2)", textDecoration: "none", fontWeight: 600 }}>Register as Seller →</Link>
+        <p style={{ textAlign: "center", marginTop: "20px", fontSize: "13px", color: "var(--muted)", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+          Selling parts instead?
+          <Link href="/register/seller" style={{ color: "var(--accent2)", textDecoration: "none", fontWeight: 600, display: "flex", alignItems: "center", gap: "4px" }}>Register as Seller <ArrowRight size={14} /></Link>
         </p>
       </div>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { Phone, Mail, Package } from "lucide-react";
 import PartCard, { Part } from "@/components/PartCard";
 import { useAuth } from "@/context/AuthContext";
 
@@ -104,13 +105,13 @@ export default function SellerProfilePage() {
         <div style={{ display: "flex", gap: "24px", justifyContent: "center", flexWrap: "wrap", alignItems: "center" }}>
           {seller.email && (
             <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px" }}>
-              <span style={{ color: "var(--accent)" }}>✉</span>
+              <span style={{ color: "var(--accent)", display: "flex", alignItems: "center" }}><Mail size={16} /></span>
               <span>{seller.email}</span>
             </div>
           )}
           {seller.phone && (
             <div style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "14px" }}>
-              <span style={{ color: "var(--accent)" }}>☎</span>
+              <span style={{ color: "var(--accent)", display: "flex", alignItems: "center" }}><Phone size={16} /></span>
               <span>{seller.phone}</span>
             </div>
           )}
@@ -146,8 +147,8 @@ export default function SellerProfilePage() {
           {parts.map(p => <PartCard key={p.id} part={p} hideStatus />)}
         </div>
       ) : (
-        <div style={{ textAlign: "center", padding: "80px", color: "var(--muted)" }}>
-          <div style={{ fontSize: "48px", marginBottom: "16px" }}>📦</div>
+        <div style={{ textAlign: "center", padding: "80px", color: "var(--muted)", display: "flex", flexDirection: "column", alignItems: "center" }}>
+          <Package size={48} color="var(--muted)" style={{ marginBottom: "16px" }} />
           <p>This seller currently has no available listings.</p>
         </div>
       )}

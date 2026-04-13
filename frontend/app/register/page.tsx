@@ -99,9 +99,9 @@ export default function RegisterPage() {
           </Link>
         </div>
 
-        <p style={{ textAlign: "center", fontSize: "13px", color: "var(--muted)" }}>
-          Already have an account?{" "}
-          <Link href="/login" style={{ color: "var(--accent)", textDecoration: "none", fontWeight: 600 }}>Sign in →</Link>
+        <p style={{ textAlign: "center", fontSize: "13px", color: "var(--muted)", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+          Already have an account?
+          <Link href="/login" style={{ color: "var(--accent)", textDecoration: "none", fontWeight: 600, display: "flex", alignItems: "center", gap: "4px" }}>Sign in <ArrowRight size={14} /></Link>
         </p>
       </div>
     </div>

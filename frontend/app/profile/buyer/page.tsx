@@ -217,14 +217,42 @@ export default function BuyerProfilePage() {
     }
   };
 
-  const disputeOrder = async (id: string | number) => {
+  const [showDisputeModal, setShowDisputeModal] = useState(false);
+  const [selectedDisputeOrderId, setSelectedDisputeOrderId] = useState<string | number | null>(null);
+  const [disputeReason, setDisputeReason] = useState("");
+  const [disputeMessage, setDisputeMessage] = useState("");
+
+  const DISPUTE_REASONS = [
+    "Item never arrived",
+    "Item arrived damaged",
+    "Item differs from description",
+    "Sent wrong item",
+    "Other"
+  ];
+
+  const handleOpenDispute = (id: string | number) => {
+    setSelectedDisputeOrderId(id);
+    setDisputeReason("");
+    setDisputeMessage("");
+    setShowDisputeModal(true);
+  };
+
+  const disputeOrder = async () => {
+    if (!selectedDisputeOrderId) return;
+    if (!disputeReason) {
+      alert("Please select a reason");
+      return;
+    }
+    
     try {
       const token = user?.token;
       if (!token) return;
-      await fetch(`http://localhost:8000/api/v1/buyer/orders/${id}/report`, {
+      await fetch(`http://localhost:8000/api/v1/buyer/orders/${selectedDisputeOrderId}/report`, {
         method: "PUT",
-        headers: { "Authorization": `Bearer ${token}` }
+        headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: disputeReason, message: disputeMessage })
       });
+      setShowDisputeModal(false);
       fetchProfileData();
     } catch (err) {
       console.error(err);
@@ -299,7 +327,7 @@ export default function BuyerProfilePage() {
               <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Phone</label>
               {editingProfile
                 ? <input value={phone} onChange={e => setPhone(e.target.value)} />
-                : <div style={{ padding: "10px 14px", background: "var(--surface2)", borderRadius: "6px", fontSize: "14px", border: "1px solid var(--border)" }}>{phone || "—"}</div>
+                : <div style={{ padding: "10px 14px", background: "var(--surface2)", borderRadius: "6px", fontSize: "14px", border: "1px solid var(--border)", color: "var(--muted)" }}>Not provided</div>
               }
             </div>
             {editingProfile && (
@@ -417,7 +445,7 @@ export default function BuyerProfilePage() {
                   <div>
                     <div style={{ fontWeight: 600, fontSize: "15px", marginBottom: "4px" }}>
                       {v.year} {v.make} {v.model}
-                      {v.subModel && <span style={{ color: "var(--muted)", fontWeight: 400 }}> — {v.subModel}</span>}
+                      {v.subModel && <span style={{ color: "var(--muted)", fontWeight: 400 }}> - {v.subModel}</span>}
                     </div>
                     <span style={{ display: "inline-block", padding: "2px 10px", background: "rgba(232,255,0,0.08)", borderRadius: "4px", fontSize: "12px", color: "var(--accent)" }}>
                       {v.make}
@@ -511,7 +539,7 @@ export default function BuyerProfilePage() {
                     </div>
                     {["shipped", "payment_held", "held"].includes(order.status.toLowerCase()) && (
                       <div style={{ display: "flex", gap: "10px", justifyContent: "flex-end", flexShrink: 0 }}>
-                        <button className="btn-ghost" style={{ padding: "8px 16px", color: "var(--red)", borderColor: "var(--red)", fontSize: "13px" }} onClick={() => disputeOrder(order.id)}>
+                        <button className="btn-ghost" style={{ padding: "8px 16px", color: "var(--red)", borderColor: "var(--red)", fontSize: "13px" }} onClick={() => handleOpenDispute(order.id)}>
                           Dispute
                         </button>
                         <button className="btn-accent" style={{ padding: "8px 16px", background: "var(--green)", color: "#000", fontSize: "13px" }} onClick={() => confirmOrder(order.id)}>
@@ -524,6 +552,39 @@ export default function BuyerProfilePage() {
               ))}
             </div>
           )}
+        </div>
+      )}
+      {/* Dispute Modal */}
+      {showDisputeModal && (
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", zIndex: 1000, display: "flex", justifyContent: "center", alignItems: "center", padding: "20px" }}>
+          <div className="card" style={{ background: "#000", padding: "32px", width: "100%", maxWidth: "500px", border: "1px solid var(--border)" }}>
+            <h2 style={{ fontSize: "24px", fontWeight: 700, marginBottom: "16px", color: "var(--red)" }}>File a Dispute</h2>
+            <p style={{ color: "var(--muted)", fontSize: "14px", marginBottom: "24px" }}>
+              Please select a reason and provide details. Once submitted, our team will mediate with the seller.
+            </p>
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div>
+                <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Reason for Dispute *</label>
+                <select value={disputeReason} onChange={e => setDisputeReason(e.target.value)}>
+                  <option value="">Select a reason...</option>
+                  {DISPUTE_REASONS.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize: "11px", fontWeight: 700, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "1px", display: "block", marginBottom: "6px" }}>Additional Details</label>
+                <textarea 
+                  value={disputeMessage} 
+                  onChange={e => setDisputeMessage(e.target.value)} 
+                  placeholder="Explain the issue in detail..."
+                  style={{ background: "var(--surface2)", border: "1px solid var(--border)", color: "var(--text)", padding: "10px 14px", borderRadius: "6px", fontFamily: "DM Sans, sans-serif", fontSize: "14px", width: "100%", minHeight: "120px", resize: "vertical", outline: "none" }}
+                />
+              </div>
+              <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
+                <button className="btn-ghost" style={{ flex: 1 }} onClick={() => setShowDisputeModal(false)}>Cancel</button>
+                <button className="btn-accent" style={{ flex: 1, background: "var(--red)", color: "white" }} onClick={disputeOrder}>Submit Dispute</button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

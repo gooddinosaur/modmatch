@@ -4,7 +4,7 @@ import Navbar from "../components/Navbar";
 import { AuthProvider } from "../context/AuthContext";
 
 export const metadata: Metadata = {
-  title: "ModMatch — Performance Parts Marketplace",
+  title: "ModMatch",
   description: "Find guaranteed-fit car parts with escrow-protected payments.",
 };
 

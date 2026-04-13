@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { Wrench, ArrowRight, ArrowLeft, Store, CheckCircle, Eye, EyeOff } from "lucide-react";
+import { Wrench, ArrowRight, ArrowLeft, Store, CheckCircle, Eye, EyeOff, AlertTriangle } from "lucide-react";
 
 type Step = "account" | "shop";
 
@@ -140,8 +140,8 @@ export default function SellerRegisterPage() {
               }} onClick={handleAccountSubmit}>
                 Continue <ArrowRight size={16} />
               </button>
-              <p style={{ fontSize: "11px", color: "var(--muted)", textAlign: "center" }}>
-                ⚠️ Seller accounts are subject to admin approval for listings.
+              <p style={{ fontSize: "11px", color: "var(--muted)", textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                <AlertTriangle size={14} color="var(--yellow)" /> Seller accounts are subject to admin approval for listings.
               </p>
             </div>
           </div>
@@ -235,9 +235,9 @@ export default function SellerRegisterPage() {
           </div>
         )}
 
-        <p style={{ textAlign: "center", marginTop: "20px", fontSize: "13px", color: "var(--muted)" }}>
-          Looking to buy parts?{" "}
-          <Link href="/register/buyer" style={{ color: "var(--green)", textDecoration: "none", fontWeight: 600 }}>Register as Buyer →</Link>
+        <p style={{ textAlign: "center", marginTop: "20px", fontSize: "13px", color: "var(--muted)", display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
+          Looking to just buy parts?
+          <Link href="/register/buyer" style={{ color: "var(--green)", textDecoration: "none", fontWeight: 600, display: "flex", alignItems: "center", gap: "4px" }}>Register as Buyer <ArrowRight size={14} /></Link>
         </p>
       </div>
     </div>

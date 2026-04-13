@@ -1,8 +1,8 @@
 "use client";
 import { useState } from "react";
+import { Eye, EyeOff, ArrowRight } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
-import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -132,7 +132,7 @@ export default function LoginPage() {
         <p style={{ textAlign: "center", marginTop: "24px", fontSize: "13px", color: "var(--muted)" }}>
           Admin?{" "}
           <Link href="/admin/login" style={{ color: "var(--accent2)", textDecoration: "none", fontWeight: 600 }}>
-            Admin login →
+            Admin login <ArrowRight size={14} style={{ display: "inline", verticalAlign: "middle" }} />
           </Link>
         </p>
       </div>

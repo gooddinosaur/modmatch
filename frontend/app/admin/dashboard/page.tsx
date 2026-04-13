@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { CheckCircle2, PartyPopper } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import StatusBadge from "@/components/StatusBadge";
 
@@ -21,10 +22,14 @@ interface PendingListing {
 interface DisputedOrder {
   id: number;
   part_id: number;
+  part_name?: string;
   buyer_id: number;
+  buyer_name?: string;
   amount_paid: number;
   created_at: string;
   status: string;
+  dispute_reason?: string;
+  dispute_message?: string;
 }
 
 interface AdminStats {
@@ -228,8 +233,9 @@ export default function AdminDashboard() {
             </div>
           ))}
           {pendingListings.length === 0 && (
-            <div style={{ textAlign: "center", padding: "60px", color: "var(--muted)" }}>
-              ✅ All caught up — no listings pending review.
+            <div style={{ textAlign: "center", padding: "60px", color: "var(--muted)", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+              <CheckCircle2 size={32} color="var(--green)" />
+              All caught up - no listings pending review.
             </div>
           )}
         </div>
@@ -246,12 +252,22 @@ export default function AdminDashboard() {
                     <span style={{ fontFamily: "monospace", fontSize: "12px", color: "var(--muted)" }}>ORD-{d.id}</span>
                     <span style={{ background: "rgba(255,61,61,0.15)", color: "var(--red)", fontSize: "11px", fontWeight: 700, padding: "3px 10px", borderRadius: "20px" }}>DISPUTE</span>
                   </div>
-                  <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "6px" }}>Part #{d.part_id}</h3>
+                  <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "6px" }}>{d.part_name || `Part #${d.part_id}`}</h3>
                   <p style={{ color: "var(--muted)", fontSize: "13px", marginBottom: "8px" }}>
-                    Buyer: <strong style={{ color: "var(--text)" }}>User #{d.buyer_id}</strong>
+                    Buyer: <strong style={{ color: "var(--text)" }}>{d.buyer_name || `User #${d.buyer_id}`}</strong>
                   </p>
-                  <div style={{ background: "rgba(255,61,61,0.08)", border: "1px solid rgba(255,61,61,0.2)", borderRadius: "6px", padding: "10px 14px" }}>
-                    <p style={{ fontSize: "13px", color: "var(--text)" }}>Reported on {new Date(d.created_at).toLocaleDateString()}</p>
+                  
+                  {d.dispute_reason && (
+                    <div style={{ marginBottom: "12px", background: "rgba(255,255,255,0.03)", padding: "12px", borderRadius: "6px", borderLeft: "3px solid var(--red)" }}>
+                      <p style={{ fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}>Reason: {d.dispute_reason}</p>
+                      {d.dispute_message && (
+                        <p style={{ fontSize: "13px", color: "var(--muted)", whiteSpace: "pre-wrap" }}>{d.dispute_message}</p>
+                      )}
+                    </div>
+                  )}
+
+                  <div style={{ background: "rgba(255,61,61,0.08)", border: "1px solid rgba(255,61,61,0.2)", borderRadius: "6px", padding: "10px 14px", display: "inline-block" }}>
+                    <p style={{ fontSize: "13px", color: "var(--text)", margin: 0 }}>Reported on {new Date(d.created_at).toLocaleDateString()}</p>
                   </div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "12px" }}>
@@ -265,8 +281,9 @@ export default function AdminDashboard() {
             </div>
           ))}
           {disputedOrders.length === 0 && (
-            <div style={{ textAlign: "center", padding: "60px", color: "var(--muted)" }}>
-              🎉 Excellent — no active order disputes to resolve.
+            <div style={{ textAlign: "center", padding: "60px", color: "var(--muted)", display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+              <PartyPopper size={32} color="var(--yellow)" />
+              Excellent - no active order disputes to resolve.
             </div>
           )}
         </div>

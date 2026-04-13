@@ -281,7 +281,20 @@ export default function SellerDashboard() {
                   <td style={{ padding: "16px 20px", color: "var(--muted)", fontSize: "13px" }}>{o.buyerName}</td>
                   <td style={{ padding: "16px 20px", fontWeight: 600, color: "var(--accent)" }}>฿{o.amount_paid.toLocaleString()}</td>
                   <td style={{ padding: "16px 20px", color: "var(--muted)", fontSize: "13px" }}>{o.date}</td>
-                  <td style={{ padding: "16px 20px" }}><StatusBadge status={o.status} /></td>
+                  <td style={{ padding: "16px 20px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <StatusBadge status={o.status} />
+                      {o.status === "reported" && o.dispute_reason && (
+                         <button 
+                           className="btn-ghost" 
+                           style={{ padding: "4px 8px", fontSize: "11px", borderRadius: "100px", color: "var(--red)", borderColor: "rgba(255,61,61,0.3)" }}
+                           onClick={() => alert(`Dispute Reason: ${o.dispute_reason}\n\nDetails: ${o.dispute_message || "No additional details"}`)}
+                         >
+                           View Details
+                         </button>
+                      )}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

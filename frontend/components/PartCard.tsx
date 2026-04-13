@@ -58,7 +58,7 @@ export default function PartCard({ part, hideStatus, onClick }: { readonly part:
       {/* Part name */}
       <h3 style={{ fontSize: "16px", fontWeight: 600, marginBottom: "4px" }}>{part.name}</h3>
       <p style={{ color: "var(--muted)", fontSize: "13px", marginBottom: "12px" }}>
-        {part.brand ? `by ${part.brand}` : "Unknown Brand"} ·{" "}
+        {part.brand ? `by ${part.brand}` : "Unknown Brand"} -{" "}
         <Link href={`/seller/${part.seller_id}`} passHref>
           <span style={{ color: "var(--accent)", cursor: "pointer", textDecoration: "none" }}
             onMouseEnter={e => e.currentTarget.style.textDecoration = "underline"}

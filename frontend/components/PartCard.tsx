@@ -16,6 +16,7 @@ export interface Part {
   fit_vehicles?: string[];
   rating?: number | null;
   reviews_count?: number;
+  reviews_list?: { rating: number, comment: string | null, created_at: string, buyer_name: string }[];
   status: "pending" | "approved" | "rejected" | "shipped" | "confirmed" | "held";
   category?: string;
   seller_name?: string;

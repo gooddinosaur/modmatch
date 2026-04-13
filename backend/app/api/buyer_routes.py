@@ -190,9 +190,18 @@ def search_parts(make: str = None, model: str = None, year: int = None, authoriz
         if reviews:
             p_dict["rating"] = round(sum([r.rating for r in reviews]) / len(reviews), 1)
             p_dict["reviews_count"] = len(reviews)
+            p_dict["reviews_list"] = [
+                {
+                    "rating": r.rating,
+                    "comment": r.comment,
+                    "created_at": r.created_at,
+                    "buyer_name": r.buyer.display_name if r.buyer.display_name else "Anonymous Buyer"
+                } for r in reviews
+            ]
         else:
             p_dict["rating"] = None
             p_dict["reviews_count"] = 0
+            p_dict["reviews_list"] = []
             
         # Check fitment
         if user_vehicles:

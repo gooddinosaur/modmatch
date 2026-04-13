@@ -209,7 +209,34 @@ export default function SearchPage() {
                 </div>
               </div>
             </div>
-          </div>
+            {/* Reviews Section */}
+            {selectedPart.reviews_list && selectedPart.reviews_list.length > 0 && (
+              <div style={{ marginTop: "32px", paddingTop: "24px", borderTop: "1px solid var(--border)" }}>
+                <h3 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "16px" }}>Customer Reviews</h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                  {selectedPart.reviews_list.map((review, idx) => (
+                    <div key={idx} style={{ background: "var(--surface)", padding: "16px", borderRadius: "8px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{ fontWeight: 600 }}>{review.buyer_name}</span>
+                          <span style={{ color: "var(--muted)", fontSize: "12px" }}>
+                             • {new Date(review.created_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div style={{ display: "flex", color: "#fbbf24", gap: "2px" }}>
+                          {[...Array(5)].map((_, i) => (
+                            <Star key={i} size={14} fill={i < review.rating ? "currentColor" : "none"} strokeWidth={i < review.rating ? 0 : 1} color={i < review.rating ? "#fbbf24" : "var(--muted)"} />
+                          ))}
+                        </div>
+                      </div>
+                      {review.comment && (
+                        <p style={{ fontSize: "14px", lineHeight: 1.5, color: "var(--text)" }}>{review.comment}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}          </div>
         </div>
       )}
     </div>

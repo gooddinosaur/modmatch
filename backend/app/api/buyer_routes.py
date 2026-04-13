@@ -11,6 +11,7 @@ router = APIRouter()
 class OrderCreate(BaseModel):
     part_id: int
     amount: float
+    quantity: int = 1
 
 class UserProfileUpdate(BaseModel):
     display_name: str
@@ -100,6 +101,7 @@ def get_buyer_orders(current_user: User = Depends(require_buyer), db: Session = 
             "id": o.id,
             "status": o.status,
             "amount_paid": o.amount_paid,
+            "quantity": o.quantity,
             "created_at": o.created_at,
             "part": o.part,
             "seller_name": seller_name
@@ -178,17 +180,18 @@ def get_part_details(part_id: int, db: Session = Depends(get_db)):
 @router.post("/buy")
 def buy_part(order_data: OrderCreate, current_user: User = Depends(require_buyer), db: Session = Depends(get_db)):
     part = db.query(Part).filter(Part.id == order_data.part_id).first()
-    if not part or part.status != PartStatusEnum.APPROVED or part.quantity <= 0:
-        raise HTTPException(status_code=400, detail="Part not available for purchase")
+    if not part or part.status != PartStatusEnum.APPROVED or part.quantity < order_data.quantity:
+        raise HTTPException(status_code=400, detail="Part not available for purchase in that quantity")
     new_order = Order(
-        buyer_id=current_user.id,  # real user
+        buyer_id=current_user.id,
         part_id=order_data.part_id,
+        quantity=order_data.quantity,
         status=OrderStatusEnum.PAYMENT_HELD,
         amount_paid=order_data.amount
     )
     db.add(new_order)
     
-    part.quantity -= 1
+    part.quantity -= order_data.quantity
     db.commit()
     db.refresh(new_order)
     

@@ -132,6 +132,7 @@ class Order(Base):
     id = Column(Integer, primary_key=True, index=True)
     buyer_id = Column(Integer, ForeignKey("users.id"))
     part_id = Column(Integer, ForeignKey("parts.id"))
+    quantity = Column(Integer, default=1)
     status = Column(Enum(OrderStatusEnum), default=OrderStatusEnum.PAYMENT_HELD)
     amount_paid = Column(Float, nullable=False)
     dispute_reason = Column(String, nullable=True)

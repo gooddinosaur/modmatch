@@ -85,11 +85,13 @@ def get_my_orders(current_user: User = Depends(require_seller), db: Session = De
             "id": o.id,
             "status": o.status,
             "amount_paid": o.amount_paid,
+            "quantity": o.quantity,
             "created_at": o.created_at,
             "buyer_name": buyer_name,
             "buyer_id": o.buyer_id,
             "part_name": part_name,
             "part_id": o.part_id,
+            "part_image": o.part.image_url if o.part else None,
             "dispute_reason": o.dispute_reason,
             "dispute_message": o.dispute_message
         })

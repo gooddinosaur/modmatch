@@ -69,6 +69,7 @@ def read_reported_orders(_: User = Depends(require_admin), db: Session = Depends
             "id": o.id,
             "status": o.status,
             "amount_paid": o.amount_paid,
+            "quantity": o.quantity,
             "created_at": o.created_at,
             "buyer_id": o.buyer_id,
             "buyer_name": buyer_name,

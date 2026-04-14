@@ -42,7 +42,7 @@ export default function Home() {
         }} />
 
         <p style={{ fontSize: "13px", fontWeight: 600, color: "var(--accent)", letterSpacing: "3px", textTransform: "uppercase", marginBottom: "24px" }}>
-          Verified Fitment - Escrow Protection
+          Fitment Tools - Escrow Protection
         </p>
         <h1 className="display-font" style={{ fontSize: "clamp(60px, 10vw, 120px)", lineHeight: 0.9, letterSpacing: "2px", marginBottom: "32px" }}>
           THE RIGHT<br />
@@ -50,7 +50,7 @@ export default function Home() {
           EVERY TIME.
         </h1>
         <p style={{ maxWidth: "520px", color: "var(--muted)", fontSize: "17px", lineHeight: 1.7, marginBottom: "40px" }}>
-          ModMatch guarantees every part fits your exact vehicle - and holds your payment safe until you confirm it does. No more expensive mistakes.
+          ModMatch checks parts against your saved vehicles - and holds your payment safe in escrow until you confirm the fitment. Reduce expensive mistakes.
         </p>
         <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
           <Link href="/register/buyer">
@@ -74,7 +74,7 @@ export default function Home() {
         </h2>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "24px" }}>
           {[
-            { step: "01", title: "Add Your Car", desc: "Enter your make, model, and year. We match parts that fit - guaranteed." },
+            { step: "01", title: "Add Your Car", desc: "Enter your make, model, and year. We help check parts against your saved cars." },
             { step: "02", title: "Browse & Buy", desc: "Admin-verified listings only. Funds held in escrow until you confirm fitment." },
             { step: "03", title: "Receive & Confirm", desc: "Part arrives. Fits perfectly. Confirm - seller gets paid. Simple." },
             { step: "04", title: "Problem? We Fix It", desc: "Doesn't fit? Funds held. Admin resolves disputes fairly and fast." },
@@ -103,8 +103,8 @@ export default function Home() {
         {[
           { icon: <ShieldCheck size={36} color="var(--accent)" strokeWidth={1.5} />, label: "Escrow Protection", sub: "Money held until confirmed" },
           { icon: <BadgeCheck size={36} color="var(--green)" strokeWidth={1.5} />, label: "Admin-Verified Parts", sub: "Every listing checked" },
-          { icon: <Wrench size={36} color="#a1a1aa" strokeWidth={1.5} />, label: "Fitment Guarantee", sub: "Matches your exact vehicle" },
-          { icon: <CarFront size={36} color="#60a5fa" strokeWidth={1.5} />, label: "Master Car Database", sub: "Thousands of makes & models" },
+          { icon: <Wrench size={36} color="#a1a1aa" strokeWidth={1.5} />, label: "Basic Fitment Check", sub: "Matches descriptions to your car" },
+          { icon: <CarFront size={36} color="#60a5fa" strokeWidth={1.5} />, label: "My Garage", sub: "Save vehicles to your profile" },
         ].map(b => (
           <div key={b.label} style={{ display: "flex", alignItems: "center", gap: "16px" }}>
             <div>{b.icon}</div>

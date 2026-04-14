@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from ..db.session import get_db
-from ..db.models import Part, PartStatusEnum, Order, OrderStatusEnum, User
-from ..domain.auth_permission import require_admin  # NEW
+from ..db.models import PartStatusEnum, User
+from ..domain.auth_permission import require_admin
 from pydantic import BaseModel
+from ..services.admin_service import AdminService
 
 router = APIRouter()
 
@@ -12,108 +13,32 @@ class PartStatusUpdate(BaseModel):
 
 @router.get("/stats")
 def read_admin_stats(_: User = Depends(require_admin), db: Session = Depends(get_db)):
-    pending_count = db.query(Part).filter(Part.status == PartStatusEnum.PENDING).count()
-    active_listings_count = db.query(Part).filter(Part.status == PartStatusEnum.APPROVED).count()
-    disputed_count = db.query(Order).filter(Order.status == OrderStatusEnum.REPORTED).count()
-    active_orders_count = db.query(Order).filter(Order.status.in_([OrderStatusEnum.PAYMENT_HELD, OrderStatusEnum.SHIPPED])).count()
-    
-    return {
-        "pending_listings": pending_count,
-        "active_listings": active_listings_count,
-        "disputed_orders": disputed_count,
-        "active_orders": active_orders_count
-    }
+    return AdminService.get_stats(db)
 
 @router.get("/parts/active")
 def read_active_parts(_: User = Depends(require_admin), db: Session = Depends(get_db)):
-    parts = db.query(Part).filter(Part.status == PartStatusEnum.APPROVED).order_by(Part.created_at.desc()).all()
-    return [p.to_dict() for p in parts]
+    return AdminService.get_active_parts(db)
 
 @router.delete("/parts/{part_id}")
 def delete_part(part_id: int, _: User = Depends(require_admin), db: Session = Depends(get_db)):
-    part = db.query(Part).filter(Part.id == part_id).first()
-    if not part:
-        raise HTTPException(status_code=404, detail="Part not found")
-    db.delete(part)
-    db.commit()
-    return {"message": "Part deleted"}
+    return AdminService.delete_part(db, part_id)
 
 @router.get("/parts/log")
 def read_parts_log(_: User = Depends(require_admin), db: Session = Depends(get_db)):
-    parts = db.query(Part).filter(Part.status.in_([PartStatusEnum.APPROVED, PartStatusEnum.REJECTED])).order_by(Part.id.desc()).limit(50).all()
-    orders = db.query(Order).filter(Order.status.in_([OrderStatusEnum.REFUNDED, OrderStatusEnum.FUNDS_RELEASED])).order_by(Order.id.desc()).limit(50).all()
-    
-    log = []
-    for p in parts:
-        log.append({
-            "type": "part",
-            "id": p.id,
-            "name": p.name,
-            "status": p.status,
-            "created_at": p.created_at
-        })
-    for o in orders:
-        part_name = o.part.name if o.part else f"Part #{o.part_id}"
-        log.append({
-            "type": "order",
-            "id": o.id,
-            "name": part_name,
-            "status": o.status,
-            "created_at": o.created_at
-        })
-    
-    # Sort by created_at descending (assuming updated ones have newer created_at or we just sort them to mix)
-    log.sort(key=lambda x: x["created_at"], reverse=True)
-    return log
+    return AdminService.get_parts_log(db)
 
 @router.get("/parts/pending")
 def read_pending_parts(_: User = Depends(require_admin), db: Session = Depends(get_db)):
-    parts = db.query(Part).filter(Part.status == PartStatusEnum.PENDING).all()
-    return [p.to_dict() for p in parts]
+    return AdminService.get_pending_parts(db)
 
 @router.put("/parts/{part_id}/status")
 def update_part_status(part_id: int, status_update: PartStatusUpdate, _: User = Depends(require_admin), db: Session = Depends(get_db)):
-    part = db.query(Part).filter(Part.id == part_id).first()
-    if not part:
-        raise HTTPException(status_code=404, detail="Part not found")
-    part.status = status_update.status
-    db.commit()
-    db.refresh(part)
-    return {"message": "Part status updated", "part": part}
+    return AdminService.update_part_status(db, part_id, status_update.status)
 
 @router.get("/orders/reported")
 def read_reported_orders(_: User = Depends(require_admin), db: Session = Depends(get_db)):
-    orders = db.query(Order).filter(Order.status == OrderStatusEnum.REPORTED).all()
-    result = []
-    for o in orders:
-        buyer_name = o.buyer.display_name or o.buyer.email if o.buyer else f"User #{o.buyer_id}"
-        part_name = o.part.name if o.part else f"Part #{o.part_id}"
-        result.append({
-            "id": o.id,
-            "status": o.status,
-            "amount_paid": o.amount_paid,
-            "quantity": o.quantity,
-            "created_at": o.created_at,
-            "buyer_id": o.buyer_id,
-            "buyer_name": buyer_name,
-            "part_id": o.part_id,
-            "part_name": part_name,
-            "dispute_reason": o.dispute_reason,
-            "dispute_message": o.dispute_message
-        })
-    return result
+    return AdminService.get_reported_orders(db)
 
 @router.put("/orders/{order_id}/resolve")
 def resolve_order(order_id: int, resolve_action: str, _: User = Depends(require_admin), db: Session = Depends(get_db)):
-    order = db.query(Order).filter(Order.id == order_id).first()
-    if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
-    if resolve_action == "refund":
-        order.status = OrderStatusEnum.REFUNDED
-    elif resolve_action == "release":
-        order.status = OrderStatusEnum.FUNDS_RELEASED
-    else:
-        raise HTTPException(status_code=400, detail="Invalid action")
-    db.commit()
-    db.refresh(order)
-    return {"message": "Dispute resolved", "order": order}
+    return AdminService.resolve_order(db, order_id, resolve_action)

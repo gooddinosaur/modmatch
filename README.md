@@ -56,7 +56,7 @@ ModMatch is an online marketplace tailored for automotive enthusiasts, connectin
 Before running the backend, start the database service using Docker:
 
 ```bash
-docker-compose up -d
+docker-compose up -d db
 ```
 
 ### 2. Backend Setup

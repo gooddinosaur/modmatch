@@ -453,7 +453,7 @@ function DashboardContent() {
               <button disabled={isUploading} className="btn-ghost" onClick={() => setTab("listings")}>Cancel</button>
             </div>
             <p style={{ fontSize: "12px", color: "var(--muted)" }}>
-              ⓘ Listings are reviewed by an admin before going live. This typically takes 1–2 business days.
+              ⓘ Listings are reviewed by an admin before going live.
             </p>
           </div>
         </div>

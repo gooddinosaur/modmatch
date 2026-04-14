@@ -61,7 +61,7 @@ docker-compose up -d
 
 ### 2. Backend Setup
 
-First, navigate to the backend directory and create a virtual environment.
+#### 2.1 Create a virtual environment
 
 **On Windows:**
 
@@ -77,7 +77,7 @@ cd backend
 python3 -m venv .venv
 ```
 
-Activate the virtual environment.
+#### 2.2 Activate the virtual environment
 
 **On Windows:**
 
@@ -91,7 +91,7 @@ Activate the virtual environment.
 source .venv/bin/activate
 ```
 
-Install the required Python dependencies.
+#### 2.3 Install the required Python dependencies
 
 **On Windows:**
 
@@ -105,7 +105,9 @@ pip install -r requirements.txt
 pip3 install -r requirements.txt
 ```
 
-Reset the database (ensure the Docker database service is running).
+#### 2.4 Reset the database
+
+_(Ensure the Docker database service is running)_
 
 **On Windows:**
 
@@ -128,7 +130,7 @@ npm install
 
 ## How to Run the System
 
-### Option A: Using Docker Compose (Recommended)
+### Option A: Using Docker Compose
 
 You can build and spin up the entire stack seamlessly:
 
@@ -139,20 +141,37 @@ docker-compose up --build
 - Frontend will be accessible at `http://localhost:3000`
 - Backend API will be available at `http://localhost:8000`
 
-### Option B: Running Locally (Development Mode)
+### Option B: Running Locally
 
 Run these commands in two separate terminal windows.
 
 **Terminal 1 (Backend):**
 
+Navigate to the backend directory and activate the virtual environment.
+
+**On Windows:**
+
 ```bash
 cd backend
 .venv\Scripts\activate
-# Start the API server
+```
+
+**On Mac/Linux:**
+
+```bash
+cd backend
+source .venv/bin/activate
+```
+
+Start the API server:
+
+```bash
 uvicorn app.main:app --reload
 ```
 
 **Terminal 2 (Frontend):**
+
+Navigate to the frontend directory and start the development server:
 
 ```bash
 cd frontend

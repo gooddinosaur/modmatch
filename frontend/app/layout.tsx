@@ -5,7 +5,7 @@ import { AuthProvider } from "../context/AuthContext";
 
 export const metadata: Metadata = {
   title: "ModMatch",
-  description: "Find guaranteed-fit car parts with escrow-protected payments.",
+  description: "Find guaranteed fit car parts with escrow protected payments.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

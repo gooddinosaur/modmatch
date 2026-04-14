@@ -56,7 +56,7 @@ export default function RegisterPage() {
               </div>
               <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--text)" }}>Buyer</h3>
               <p style={{ color: "var(--muted)", fontSize: "13px", lineHeight: 1.5, marginBottom: "20px" }}>
-                Find guaranteed-fit parts for your car with escrow-protected payments.
+                Find guaranteed fit parts for your car with escrow protected payments.
               </p>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", color: "var(--green)", fontSize: "13px", fontWeight: 600 }}>
                 Get Started <ArrowRight size={14} />
@@ -90,7 +90,7 @@ export default function RegisterPage() {
               </div>
               <h3 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "8px", color: "var(--text)" }}>Seller</h3>
               <p style={{ color: "var(--muted)", fontSize: "13px", lineHeight: 1.5, marginBottom: "20px" }}>
-                List your parts to thousands of buyers. Admin-verified listings build trust.
+                List your parts to thousands of buyers. Admin verified listings build trust.
               </p>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", color: "var(--accent2)", fontSize: "13px", fontWeight: 600 }}>
                 Start Selling <ArrowRight size={14} />

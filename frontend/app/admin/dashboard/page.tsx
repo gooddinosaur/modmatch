@@ -50,6 +50,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [selectedListing, setSelectedListing] = useState<PendingListing | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState<number>(0);
+  const [listingToDelete, setListingToDelete] = useState<number | null>(null);
 
   const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
@@ -117,11 +118,14 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDeletePart = async (partId: number) => {
-    if (!user?.token) return;
-    if (!globalThis.confirm(`Are you sure you want to delete Listing L-${partId}?`)) return;
+  const handleDeletePart = (partId: number) => {
+    setListingToDelete(partId);
+  };
+
+  const confirmDeletePart = async () => {
+    if (!user?.token || !listingToDelete) return;
     try {
-      const res = await fetch(`${API}/admin/parts/${partId}`, {
+      const res = await fetch(`${API}/admin/parts/${listingToDelete}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${user.token}` }
       });
@@ -130,6 +134,8 @@ export default function AdminDashboard() {
       }
     } catch (err) {
       console.error(err);
+    } finally {
+      setListingToDelete(null);
     }
   };
 
@@ -502,6 +508,40 @@ export default function AdminDashboard() {
                 })()}
                 </div>
               </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {listingToDelete && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+          backgroundColor: "rgba(0,0,0,0.6)", backdropFilter: "blur(8px)", zIndex: 1100,
+          display: "flex", justifyContent: "center", alignItems: "center", padding: "20px"
+        }} onClick={() => setListingToDelete(null)}>
+          <div className="card" style={{
+            background: "#000000", padding: "32px", maxWidth: "400px", width: "100%", position: "relative", border: "1px solid var(--border)", textAlign: "center"
+          }} onClick={e => e.stopPropagation()}>
+            <h3 style={{ fontSize: "20px", fontWeight: 700, marginBottom: "16px" }}>Confirm Deletion</h3>
+            <p style={{ color: "var(--muted)", marginBottom: "24px" }}>
+              Are you sure you want to delete Listing L-{listingToDelete}? This action cannot be undone.
+            </p>
+            <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
+              <button 
+                className="btn-ghost" 
+                style={{ flex: 1, padding: "10px" }} 
+                onClick={() => setListingToDelete(null)}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-accent" 
+                style={{ flex: 1, padding: "10px", background: "var(--red)", color: "white", borderColor: "var(--red)" }} 
+                onClick={confirmDeletePart}
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

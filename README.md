@@ -13,9 +13,28 @@ ModMatch is an online marketplace tailored for automotive enthusiasts, connectin
 
 ## User Roles & Permissions
 
-- **Admin:** Has full access to the system. Can manage user accounts, moderate part listings, view global analytics, and perform system-level operations.
-- **Seller:** Can create and manage their store/dashboard, post part listings, set inventory, and manage incoming orders.
-- **Buyer:** Can browse and search for parts, utilize the fitment engine to verify compatibility, manage their profile, and securely purchase parts.
+- **Admin**
+  - View platform statistics
+  - Approve, reject pending part listings
+  - Delete active part listings
+  - View activity logs for status changes
+  - Review and resolve reported or disputed orders
+
+- **Seller**
+  - View statistics (Listings, Revenue)
+  - Create part listings (requires admin approval) and upload images
+  - View status of listings
+  - View incoming orders and it's status
+  - Update seller profile
+
+- **Buyer**
+  - Search for parts
+  - View part listings and seller profiles
+  - Manage saved vehicles
+  - Manage shipping addresses
+  - Place orders and view purchase history
+  - Confirm order or report issues with an order
+  - Write reviews and rate purchased parts
 
 ## Technology Stack
 

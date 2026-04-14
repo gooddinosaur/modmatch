@@ -5,15 +5,12 @@ import { Search, Star, CheckCircle2 } from "lucide-react";
 import PartCard, { Part } from "@/components/PartCard";
 import { useAuth } from "@/context/AuthContext";
 
-const MAKES = ["All Makes", "Honda", "Toyota", "BMW", "Mazda", "Subaru", "Nissan"];
-const CATEGORIES = ["All Categories", "Intake", "Exhaust", "Suspension", "Brakes", "Engine", "Chassis", "Aero"];
+const CATEGORIES = ["All Categories", "Intake", "Exhaust", "Suspension", "Brakes", "Engine", "Chassis", "Aero", "Other"];
 
 export default function SearchPage() {
   const router = useRouter();
   const { user } = useAuth();
-  const [make, setMake] = useState("All Makes");
-  const [model, setModel] = useState("");
-  const [year, setYear] = useState("");
+  const [searchText, setSearchText] = useState("");
   const [category, setCategory] = useState("All Categories");
   const [parts, setParts] = useState<Part[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,11 +25,9 @@ export default function SearchPage() {
 
   const fetchParts = async () => {
     try {
-      // Build query string
       const params = new URLSearchParams();
-      if (make !== "All Makes") params.append("make", make);
-      if (model) params.append("model", model);
-      if (year) params.append("year", year);
+      // Search logic mostly handled via frontend filter
+
       
       let token = user?.token;
       if (!token) {
@@ -61,10 +56,24 @@ export default function SearchPage() {
     }
   };
 
-  // Keep category filtering in frontend, as the generic /search endpoint returns all parts or based on make/model
+  // Filtering happens on the frontend since the API returns all approved parts
   const filtered = parts.filter(p => {
-    // If category is not "All Categories", filter match
+    // Category match
     if (category !== "All Categories" && p.category && p.category !== category) return false;
+    
+    // Text search match (part name, description, brand, fitment)
+    if (searchText && searchText.trim() !== "") {
+      const q = searchText.toLowerCase();
+      const textMatches = 
+        (p.name && p.name.toLowerCase().includes(q)) || 
+        (p.description && p.description.toLowerCase().includes(q)) ||
+        (p.brand && p.brand.toLowerCase().includes(q)) ||
+        (p.fit_vehicles && Array.isArray(p.fit_vehicles) && p.fit_vehicles.join(" ").toLowerCase().includes(q)) ||
+        (p.fitment && Array.isArray(p.fitment) && p.fitment.join(" ").toLowerCase().includes(q));
+        
+      if (!textMatches) return false;
+    }
+    
     return true;
   });
 
@@ -74,35 +83,23 @@ export default function SearchPage() {
         FIND YOUR <span style={{ color: "var(--accent)" }}>PARTS</span>
       </h1>
       <p style={{ color: "var(--muted)", marginBottom: "40px" }}>
-        Every result is guaranteed to fit your specific vehicle.
+        Browse verified listings and check fitment compatibility against your garage.
       </p>
 
       {/* Filters */}
       <div className="card" style={{ padding: "24px", marginBottom: "32px" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "16px" }}>
-          <div>
-            <label htmlFor="make-select" style={{ fontSize: "12px", color: "var(--muted)", fontWeight: 600, display: "block", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>Make</label>
-            <select id="make-select" value={make} onChange={e => { setMake(e.target.value); fetchParts(); }}>
-              {MAKES.map(m => <option key={m}>{m}</option>)}
-            </select>
+        <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", alignItems: "flex-end" }}>
+          <div style={{ flex: "2 1 300px" }}>
+            <label htmlFor="search-input" style={{ fontSize: "12px", color: "var(--muted)", fontWeight: 600, display: "block", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>Search by name, brand, etc.</label>
+            <input id="search-input" placeholder="e.g. K&N Intake, Civic, GR86" value={searchText} onChange={e => setSearchText(e.target.value)} />
           </div>
-          <div>
-            <label htmlFor="model-input" style={{ fontSize: "12px", color: "var(--muted)", fontWeight: 600, display: "block", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>Model</label>
-            <input id="model-input" placeholder="e.g. Civic, GR86" value={model} onChange={e => setModel(e.target.value)} onBlur={fetchParts} />
-          </div>
-          <div>
-            <label htmlFor="year-input" style={{ fontSize: "12px", color: "var(--muted)", fontWeight: 600, display: "block", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>Year</label>
-            <input id="year-input" placeholder="e.g. 2021" value={year} onChange={e => setYear(e.target.value)} onBlur={fetchParts} />
-          </div>
-          <div>
+          <div style={{ flex: "1 1 200px" }}>
             <label htmlFor="category-select" style={{ fontSize: "12px", color: "var(--muted)", fontWeight: 600, display: "block", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "1px" }}>Category</label>
             <select id="category-select" value={category} onChange={e => setCategory(e.target.value)}>
               {CATEGORIES.map(c => <option key={c}>{c}</option>)}
             </select>
           </div>
-          <div style={{ display: "flex", alignItems: "flex-end" }}>
-             <button className="btn-accent" style={{ width: "100%" }} onClick={fetchParts}>Search</button>
-          </div>
+          <button className="btn-accent" style={{ padding: "12px 32px", height: "48px" }} onClick={fetchParts}>Refresh</button>
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import StatusBadge from "@/components/StatusBadge";
 
@@ -31,10 +32,18 @@ interface Listing {
 
 import { Package } from "lucide-react";
 
-export default function SellerDashboard() {
+function DashboardContent() {
   const { user } = useAuth();
-  const [tab, setTab] = useState<"listings" | "orders" | "new">("listings");
-  
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get("tab") === "new" ? "new" : "listings";
+  const [tab, setTab] = useState<"listings" | "orders" | "new">(initialTab);
+
+  useEffect(() => {
+    if (searchParams.get("tab") === "new") {
+      setTab("new");
+    }
+  }, [searchParams]);
+
   const [listings, setListings] = useState<Listing[]>([]);
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -450,5 +459,13 @@ export default function SellerDashboard() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function SellerDashboard() {
+  return (
+    <Suspense fallback={<div style={{ padding: "32px", textAlign: "center" }}>Loading dashboard...</div>}>
+      <DashboardContent />
+    </Suspense>
   );
 }

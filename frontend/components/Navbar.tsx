@@ -20,7 +20,7 @@ export default function Navbar() {
   }, []);
 
   const profileHref = user?.role === "seller" ? `/seller/${user.id}` : "/profile/buyer";
-  const homeHref = user?.role === "seller" ? "/seller/dashboard" : user?.role === "admin" ? "/admin/dashboard" : "/search";
+  const homeHref = "/search";
 
   return (
     <nav style={{
@@ -61,9 +61,14 @@ export default function Navbar() {
             </span>
 
             {user.role === "seller" && (
-              <Link href="/seller/dashboard">
-                <button className="btn-ghost" style={{ padding: "8px 16px" }}>Dashboard</button>
-              </Link>
+              <>
+                <Link href="/seller/dashboard">
+                  <button className="btn-ghost" style={{ padding: "8px 16px" }}>Dashboard</button>
+                </Link>
+                <Link href="/seller/dashboard?tab=new">
+                  <button className="btn-ghost" style={{ padding: "8px 16px" }}>Add Listings</button>
+                </Link>
+              </>
             )}
             {user.role === "admin" && (
               <Link href="/admin/dashboard">

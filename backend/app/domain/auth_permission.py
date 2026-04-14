@@ -57,9 +57,6 @@ def require_role(*roles: RoleEnum):
             )
         return current_user
     return _check
-
-
-# Convenience shortcuts
 require_buyer  = require_role(RoleEnum.BUYER)
 require_seller = require_role(RoleEnum.SELLER)
 require_admin  = require_role(RoleEnum.ADMIN)

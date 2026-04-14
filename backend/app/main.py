@@ -6,8 +6,6 @@ import os
 from .db.session import engine, Base
 from .api import admin_routes, buyer_routes, seller_routes
 from .api import auth_routes  # NEW
-
-# Create uploads directory if it doesn't exist
 os.makedirs("uploads", exist_ok=True)
 
 Base.metadata.create_all(bind=engine)
@@ -17,8 +15,6 @@ app = FastAPI(
     description="High-Performance Car Parts Marketplace APIs",
     version="1.0.0"
 )
-
-# Route for serving uploaded files
 app.mount("/api/v1/uploads", StaticFiles(directory="uploads"), name="uploads")
 
 app.add_middleware(

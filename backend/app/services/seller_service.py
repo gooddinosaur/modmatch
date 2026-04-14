@@ -89,8 +89,6 @@ class SellerService:
             raise HTTPException(status_code=404, detail="Order not found")
         if order.status != OrderStatusEnum.DELIVERED:
             raise HTTPException(status_code=400, detail="Order is not in valid status")
-            
-        # In actual system, would call payment gateway here to payout
         order.status = OrderStatusEnum.COMPLETED
         db.commit()
         db.refresh(order)

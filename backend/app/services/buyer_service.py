@@ -104,8 +104,6 @@ class BuyerService:
                 continue
                 
             p_dict = p.to_dict()
-            
-            # Calculate rating
             reviews = db.query(Review).filter(Review.part_id == p.id).all()
             if reviews:
                 p_dict["rating"] = round(sum([r.rating for r in reviews]) / len(reviews), 1)
@@ -122,8 +120,6 @@ class BuyerService:
                 p_dict["rating"] = None
                 p_dict["reviews_count"] = 0
                 p_dict["reviews_list"] = []
-                
-            # Check fitment
             if user_vehicles:
                 p_dict["fit_vehicles"] = check_basic_fitment(p.name, p.description, user_vehicles)
             else:

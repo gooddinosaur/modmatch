@@ -31,9 +31,6 @@ def create_access_token(data: dict) -> str:
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-
-# ── Schemas ──────────────────────────────────────────────────────────────────
-
 class RegisterRequest(BaseModel):
     email: str
     password: str
@@ -55,12 +52,8 @@ class TokenResponse(BaseModel):
     email: str
     id: int
 
-
-# ── Endpoints ────────────────────────────────────────────────────────────────
-
 @router.post("/register", response_model=TokenResponse, status_code=201)
 def register(payload: RegisterRequest, db: Session = Depends(get_db)):
-    # Prevent registering as admin via this public endpoint
     if payload.role == RoleEnum.ADMIN:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

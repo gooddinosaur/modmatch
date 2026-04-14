@@ -148,9 +148,6 @@ export default function AdminDashboard() {
           <h1 className="display-font" style={{ fontSize: "48px", letterSpacing: "2px" }}>
             ADMIN <span style={{ color: "var(--accent2)" }}>DASHBOARD</span>
           </h1>
-          <span style={{ background: "rgba(255,77,0,0.15)", color: "var(--accent2)", fontSize: "12px", fontWeight: 700, padding: "4px 12px", borderRadius: "20px", letterSpacing: "1px" }}>
-            RESTRICTED
-          </span>
         </div>
         <p style={{ color: "var(--muted)" }}>Review listings, resolve disputes, manage platform integrity</p>
       </div>

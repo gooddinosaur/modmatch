@@ -6,10 +6,8 @@ ModMatch is an online marketplace tailored for automotive enthusiasts, connectin
 
 ## System Architecture Overview
 
-The system follows a modern decoupled architecture:
-
-- **Frontend (Client-Side):** Developed using Next.js (React) to provide a fast, SEO-friendly, and responsive user interface.
-- **Backend (Server-Side):** A robust RESTful API built with Python (FastAPI), adhering to a layered architecture (API handlers -> Services -> Repositories -> Domain/DB).
+- **Frontend:** Developed using Next.js (React) to provide a fast, SEO-friendly, and responsive user interface.
+- **Backend:** A robust RESTful API built with Python (FastAPI), adhering to a layered architecture (API handlers -> Services -> Repositories -> Domain/DB).
 - **Database:** Relational database integration managed via ORM (SQLAlchemy model mappings) to store users, listings, fitment data, and transactions.
 - **Containerization:** The entire application is orchestrated using Docker and Docker Compose for easy deployment and scaling.
 

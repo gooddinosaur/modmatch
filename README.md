@@ -61,21 +61,62 @@ docker-compose up -d
 
 ### 2. Backend Setup
 
+First, navigate to the backend directory and create a virtual environment.
+
+**On Windows:**
+
 ```bash
 cd backend
 python -m venv .venv
+```
 
-# Activate virtual environment
-# On Windows:
+**On Mac/Linux:**
+
+```bash
+cd backend
+python3 -m venv .venv
+```
+
+Activate the virtual environment.
+
+**On Windows:**
+
+```bash
 .venv\Scripts\activate
-# On Mac/Linux:
+```
+
+**On Mac/Linux:**
+
+```bash
 source .venv/bin/activate
+```
 
-# Install dependencies
+Install the required Python dependencies.
+
+**On Windows:**
+
+```bash
 pip install -r requirements.txt
+```
 
-# Reset Database (Ensure Docker DB is running first)
+**On Mac/Linux:**
+
+```bash
+pip3 install -r requirements.txt
+```
+
+Reset the database (ensure the Docker database service is running).
+
+**On Windows:**
+
+```bash
 python reset_db.py
+```
+
+**On Mac/Linux:**
+
+```bash
+python3 reset_db.py
 ```
 
 ### 3. Frontend Setup

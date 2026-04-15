@@ -5,11 +5,13 @@
 ModMatch is an online marketplace tailored for automotive enthusiasts, connecting buyers and sellers of vehicle modifications and parts. It features a specialized **Fitment Engine** to guarantee that buyers can easily and accurately find parts that fit their specific vehicles, improving user confidence and reducing return rates.
 
 ## System Architecture Overview
+<img width="1204" height="852" alt="Screenshot 2026-04-15 140146" src="https://github.com/user-attachments/assets/b13cf36a-0ce6-463b-95c1-ec53fc1988b6" />
 
-- **Frontend:** Developed using Next.js (React) to provide a fast, SEO-friendly, and responsive user interface.
-- **Backend:** A robust RESTful API built with Python (FastAPI), adhering to a layered architecture (API handlers -> Services -> Repositories -> Domain/DB).
-- **Database:** Relational database integration managed via ORM (SQLAlchemy model mappings) to store users, listings, fitment data, and transactions.
-- **Containerization:** The entire application is orchestrated using Docker and Docker Compose for easy deployment and scaling.
+- **Client/Browser:** The entry point where users interact with the application’s interface.
+- **Frontend:** Handles the UI logic and communicates with the backend via REST API calls.
+- **Backend:** The core engine that processes business logic, security, and data orchestration.
+- **PostgreSQL:** The relational database used for persistent storage of users, car parts, and order data.
+- **Static Files:** A dedicated storage area for media assets, such as images of automotive parts.
 
 ## User Roles & Permissions
 

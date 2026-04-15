@@ -5,6 +5,7 @@
 ModMatch is an online marketplace tailored for automotive enthusiasts, connecting buyers and sellers of vehicle modifications and parts. It features a specialized **Fitment Engine** to guarantee that buyers can easily and accurately find parts that fit their specific vehicles, improving user confidence and reducing return rates.
 
 ## System Architecture Overview
+
 <img width="1204" height="852" alt="Screenshot 2026-04-15 140146" src="https://github.com/user-attachments/assets/b13cf36a-0ce6-463b-95c1-ec53fc1988b6" />
 
 - **Client/Browser:** The entry point where users interact with the application’s interface.
@@ -123,6 +124,20 @@ python reset_db.py
 python3 reset_db.py
 ```
 
+#### 2.5 Create Admin Account
+
+**On Windows:**
+
+```bash
+python -m scripts.create_admin --email admin@example.com --password yourpassword
+```
+
+**On Mac/Linux:**
+
+```bash
+python3 -m scripts.create_admin --email admin@example.com --password yourpassword
+```
+
 ### 3. Frontend Setup
 
 ```bash
@@ -187,13 +202,13 @@ npm run dev
 <img width="1919" height="914" alt="image" src="https://github.com/user-attachments/assets/4ccfb128-3525-44a2-9fba-5e34615d75f2" />
 
 ### 2. Search Page
+
 <img width="1919" height="918" alt="image" src="https://github.com/user-attachments/assets/30dcdbd4-7afd-4461-bbc0-e3a143c65da9" />
 
-
 ### 3. Seller Dashboard
+
 <img width="1919" height="912" alt="image" src="https://github.com/user-attachments/assets/5fe29442-0949-4478-a872-19be918feb3f" />
 
 ### 4. Admin Dashboard
+
 <img width="1919" height="911" alt="image" src="https://github.com/user-attachments/assets/c03dfe7a-eccb-4ce5-ac4a-f9cb80a0da62" />
-
-

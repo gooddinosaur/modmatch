@@ -184,15 +184,16 @@ npm run dev
 
 ### 1. Landing Page / Search
 
-![Landing Page](./public/screenshots/home-placeholder.png)
-_Browse parts and use the Fitment Engine to filter by vehicle._
+<img width="1919" height="914" alt="image" src="https://github.com/user-attachments/assets/4ccfb128-3525-44a2-9fba-5e34615d75f2" />
 
-### 2. Seller Dashboard
+### 2. Search Page
+<img width="1919" height="918" alt="image" src="https://github.com/user-attachments/assets/30dcdbd4-7afd-4461-bbc0-e3a143c65da9" />
 
-![Seller Dashboard](./public/screenshots/seller-placeholder.png)
-_Sellers can easily manage inventory and track their part listings._
 
-### 3. Admin Panel
+### 3. Seller Dashboard
+<img width="1919" height="912" alt="image" src="https://github.com/user-attachments/assets/5fe29442-0949-4478-a872-19be918feb3f" />
 
-![Admin Panel](./public/screenshots/admin-placeholder.png)
-_Moderation and overview of platform activity._
+### 4. Admin Dashboard
+<img width="1919" height="911" alt="image" src="https://github.com/user-attachments/assets/c03dfe7a-eccb-4ce5-ac4a-f9cb80a0da62" />
+
+

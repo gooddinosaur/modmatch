@@ -126,6 +126,10 @@ python3 reset_db.py
 
 #### 2.5 Create Admin Account
 
+```bash
+cd backend
+```
+
 **On Windows:**
 
 ```bash
